@@ -7,7 +7,6 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,22 +14,24 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.svenkapudija.imagechooser.AlertDialogImageChooser;
 import com.svenkapudija.imagechooser.ImageChooser;
 import com.svenkapudija.imagechooser.ImageChooserListener;
 import com.svenkapudija.imagechooser.StorageOption;
 import com.svenkapudija.imagechooser.settings.AlertDialogImageChooserSettings;
+import com.svenkapudija.imagewall.api.ImageWallApi.ImagesListener;
 import com.svenkapudija.imagewall.base.ImageWallActivity;
 import com.svenkapudija.imagewall.models.Image;
 
 public class MainActivity extends ImageWallActivity {
 
 	private static final int CHOOSER_IMAGE_REQUEST_CODE = 1000;
-	
+
 	private ImageChooser chooser;
+	
 	private ImageButton newImage;
 	private PullToRefreshListView listView;
 	
@@ -57,7 +58,7 @@ public class MainActivity extends ImageWallActivity {
 		
 		List<Image> items = new ArrayList<Image>();
 		for(int i = 0; i < 20; i++) {
-			items.add(new Image());
+			items.add(new Image(null, null, null));
 		}
 		
 		ArrayAdapter<Image> adapter = new TimelineAdapter(this, items);
@@ -67,25 +68,20 @@ public class MainActivity extends ImageWallActivity {
 		listView.setOnRefreshListener(new OnRefreshListener<ListView>() {
 			@Override
 			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-				new AsyncTask<Void, Void, Void>() {
+				getApi().getImages(new ImagesListener() {
 					
 					@Override
-					protected Void doInBackground(Void... params) {
-						try {
-							Thread.sleep(2000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+					public void onSuccess(List<Image> images) {
 						
-						return null;
-					}
-					
-					protected void onPostExecute(Void result) {
-						super.onPostExecute(result);
 						
 						listView.onRefreshComplete();
-					};
-				}.execute();
+					}
+					
+					@Override
+					public void onFailure() {
+						
+					}
+				});
 			}
 		});
 	}

@@ -7,10 +7,10 @@ import java.util.List;
 
 import android.graphics.Bitmap;
 
-import com.google.android.maps.GeoPoint;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.svenkapudija.imagewall.models.Image;
+import com.svenkapudija.imagewall.models.LatLonGeoPoint;
 import com.svenkapudija.imagewall.models.Tag;
 
 public class ImageWallApi {
@@ -51,8 +51,8 @@ public class ImageWallApi {
 		});
 	}
 	
-	public void getTags(GeoPoint location, final TagsListener listener) {
-		httpClient.get(API_BASE_URL + "/tags", new AsyncHttpResponseHandler() {
+	public void getTags(LatLonGeoPoint geoPoint, final TagsListener listener) {
+		httpClient.get(API_BASE_URL + "/tags?location=" + encode(geoPoint.getLat() + "," + geoPoint.getLon()), new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
 				listener.onSuccess(null);
@@ -101,22 +101,22 @@ public class ImageWallApi {
 		return string;
 	}
 	
-	private interface ImageListener {
+	public interface ImageListener {
 		public void onSuccess(Image image);
 		public void onFailure();
 	}
 	
-	private interface TagsListener {
+	public interface TagsListener {
 		public void onSuccess(List<Tag> tags);
 		public void onFailure();
 	}
 	
-	private interface ImagesListener {
+	public interface ImagesListener {
 		public void onSuccess(List<Image> images);
 		public void onFailure();
 	}
 	
-	private interface ImageWallListener {
+	public interface ImageWallListener {
 		public void onSuccess();
 		public void onFailure();
 	}

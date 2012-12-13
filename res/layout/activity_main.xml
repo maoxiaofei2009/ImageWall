@@ -84,14 +84,15 @@
         <com.handmark.pulltorefresh.library.PullToRefreshListView
             android:id="@+id/listView"
             android:layout_width="match_parent"
-            android:divider="@drawable/listview_empty_divider"
-            android:dividerHeight="@dimen/divider_height"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_below="@+id/imageView_dottedLine"
             android:cacheColorHint="@android:color/transparent"
+            android:divider="@drawable/listview_empty_divider"
+            android:dividerHeight="@dimen/divider_height"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:scrollbarStyle="outsideOverlay" >
+
         </com.handmark.pulltorefresh.library.PullToRefreshListView>
     </RelativeLayout>
 
