@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.svenkapudija.imagewall.models.Image;
 import com.svenkapudija.imagewall.models.LatLonGeoPoint;
 import com.svenkapudija.imagewall.models.Tag;
 
@@ -102,7 +101,7 @@ public class ImageWallApi {
 	}
 	
 	public interface ImageListener {
-		public void onSuccess(Image image);
+		public void onSuccess(Bitmap image);
 		public void onFailure();
 	}
 	
@@ -112,7 +111,7 @@ public class ImageWallApi {
 	}
 	
 	public interface ImagesListener {
-		public void onSuccess(List<Image> images);
+		public void onSuccess(List<Bitmap> images);
 		public void onFailure();
 	}
 	

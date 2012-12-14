@@ -2,11 +2,10 @@ package com.svenkapudija.imagewall.adapters;
 
 import java.util.List;
 
+import uk.co.senab.bitmapcache.BitmapLruCache;
+import uk.co.senab.bitmapcache.CacheableImageView;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +15,7 @@ import android.widget.TextView;
 
 import com.svenkapudija.android.fileutils.AndroidFileUtils;
 import com.svenkapudija.imagewall.R;
+import com.svenkapudija.imagewall.base.ImageWallApplication;
 import com.svenkapudija.imagewall.models.Image;
 import com.svenkapudija.imagewall.utils.Fonts;
 
@@ -28,6 +28,8 @@ public class TimelineAdapter extends ArrayAdapter<Image> {
 	private AndroidFileUtils fileUtils;
 	private Drawable loadingDrawable;
 	
+	private final BitmapLruCache cache;
+	
 	public TimelineAdapter(Context context, List<Image> items) {
 		super(context, 0, items);
 		
@@ -37,6 +39,8 @@ public class TimelineAdapter extends ArrayAdapter<Image> {
 		this.fonts = new Fonts(context);
 		this.fileUtils = new AndroidFileUtils(context);
 		this.loadingDrawable = context.getResources().getDrawable(R.drawable.loading_image);
+		
+		this.cache = ImageWallApplication.getApplication(context).getBitmapCache();
 	}
 	
 	public View getView(final int position, View convertView, ViewGroup parent) {
@@ -61,24 +65,27 @@ public class TimelineAdapter extends ArrayAdapter<Image> {
 			viewHolder.imageDescription.setVisibility(View.GONE);
 		}
 		
-		final ViewHolder viewHolderFinal = viewHolder;
-		
-		new AsyncTask<Void, Void, Bitmap>() {
-			@Override
-			protected Bitmap doInBackground(Void... params) {
-				return fileUtils.getBitmap(AndroidFileUtils.StorageOption.SD_CARD_APP_ROOT, "images", position);
-			}
+		CacheableImageView imageView = new CacheableImageView(context);
 
-			@Override
-			protected void onPostExecute(Bitmap result) {
-				super.onPostExecute(result);
-				
-				viewHolderFinal.image.setImageBitmap(result);
-				viewHolderFinal.imageDescription.setVisibility(View.VISIBLE);
-			}
-		}.execute();
+		int imageId = image.getId();
+		imageView.setImageBitmap(null);
 		
-		viewHolderFinal.imageDescription.setText(image.getDescription());
+//		new AsyncTask<Void, Void, Bitmap>() {
+//			@Override
+//			protected Bitmap doInBackground(Void... params) {
+//				return fileUtils.getBitmap(AndroidFileUtils.StorageOption.SD_CARD_APP_ROOT, "images", position);
+//			}
+//
+//			@Override
+//			protected void onPostExecute(Bitmap result) {
+//				super.onPostExecute(result);
+//				
+//				viewHolderFinal.image.setImageBitmap(result);
+//				viewHolderFinal.imageDescription.setVisibility(View.VISIBLE);
+//			}
+//		}.execute();
+		
+		viewHolder.imageDescription.setText(image.getDescription());
 		
         return convertView;
     }
@@ -90,7 +97,7 @@ public class TimelineAdapter extends ArrayAdapter<Image> {
 	
 	@Override
 	public int getCount() {
-		return items.size();
+		return (items != null) ? items.size() : 0;
 	}
 	
 	@Override

@@ -1,22 +1,21 @@
 package com.svenkapudija.imagewall.models;
 
-import android.graphics.Bitmap;
 
 public class Image {
 
-	private Bitmap image;
+	private int id;
 	private String description;
 	private Tag tag;
 	private LatLonGeoPoint geoPoint;
 
-	public Image(Bitmap image, String description, Tag tag) {
-		this.image = image;
+	public Image(int id, String description, Tag tag) {
+		this.id = id;
 		this.description = description;
 		this.tag = tag;
 	}
 
-	public Bitmap getImage() {
-		return image;
+	public int getId() {
+		return id;
 	}
 
 	public String getDescription() {

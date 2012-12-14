@@ -1,8 +1,6 @@
 package com.svenkapudija.imagewall;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +9,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -61,7 +58,7 @@ public class MainActivity extends ImageWallActivity {
 		setContentView(R.layout.activity_main);
 		
 		chooser = new AlertDialogImageChooser(this, CHOOSER_IMAGE_REQUEST_CODE, new AlertDialogImageChooserSettings(true));
-		chooser.saveImageTo(StorageOption.SD_CARD_APP_ROOT, "images", new Date().getTime() + "test");
+		chooser.saveImageTo(StorageOption.SD_CARD_APP_ROOT, "images", "image_" + 1 + ".jpg");
 		
 		newImage.setOnClickListener(new OnClickListener() {
 			@Override
@@ -81,7 +78,7 @@ public class MainActivity extends ImageWallActivity {
 				getApi().getImages(new ImagesListener() {
 					
 					@Override
-					public void onSuccess(List<Image> images) {
+					public void onSuccess(List<Bitmap> images) {
 						
 						
 						listView.onRefreshComplete();
@@ -99,7 +96,7 @@ public class MainActivity extends ImageWallActivity {
 		
 		int totalImages = utils.getCount(AndroidFileUtils.StorageOption.SD_CARD_APP_ROOT, "images");
 		for(int i = 0; i < totalImages; i++) {
-			adapter.add(new Image(null, "Ovo je testiranje", null));
+			adapter.add(new Image(0, "Ovo je testiranje", null));
 		}
 	}
 	
@@ -113,7 +110,14 @@ public class MainActivity extends ImageWallActivity {
 
 	            @Override
 	            public void onResult(final Bitmap image, final File ... savedImages) {
-	            	new AsyncTask<Void, Void, Bitmap>() {
+	            	resizeAndSave(image, savedImages);
+	            	
+//					Intent i = new Intent(MainActivity.this, NewImageActivity.class);
+//					startActivity(i);
+	            }
+
+				private void resizeAndSave(final Bitmap image, final File... savedImages) {
+					new AsyncTask<Void, Void, Bitmap>() {
 	            		
 	            		private ProgressDialog dialog;
 	            		
@@ -147,14 +151,11 @@ public class MainActivity extends ImageWallActivity {
 	            				dialog.cancel();
 	            			}
 	            			
-	            			adapter.add(new Image(result, "Ovo je testiranje", null));
+	            			adapter.add(new Image(0, "Ovo je testiranje", null));
 	            		}
 	            		
 					}.execute();
-	            	
-//					Intent i = new Intent(MainActivity.this, NewImageActivity.class);
-//					startActivity(i);
-	            }
+				}
 
 	            @Override
 	            public void onError(String message) {
