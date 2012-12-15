@@ -1,43 +1,71 @@
 package com.svenkapudija.imagewall.api;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.svenkapudija.imagewall.models.LatLonGeoPoint;
+import com.loopj.android.http.BinaryHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.svenkapudija.imagewall.models.Image;
+import com.svenkapudija.imagewall.models.Location;
 import com.svenkapudija.imagewall.models.Tag;
 
 public class ImageWallApi {
 
-	private static final String API_BASE_URL = "http://www.domain.com"; 
+	private static final String TAG = ImageWallApi.class.getName();
+	
+	private static final String API_BASE_URL = "http://team36.host25.com/api"; 
 	
 	private AsyncHttpClient httpClient;
 	
 	public ImageWallApi() {
 		httpClient = new AsyncHttpClient();
+		httpClient.addHeader("Accept", "application/json");
 	}
-	
+
 	public void getImages(final ImagesListener listener, Date ... lastImageTimestamp) {
 		httpClient.get(API_BASE_URL + "/images", new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
-				listener.onSuccess(null);
+				Log.e(TAG, "onSuccess");
+				Log.e(TAG, result);
+				
+				GsonBuilder gsonBuilder = new GsonBuilder();
+				gsonBuilder.setDateFormat("yyyy-MM-dd HH:mm:ss");
+				
+				Type collectionType = new TypeToken<Collection<Image>>(){}.getType();
+				Collection<Image> images = gsonBuilder.create().fromJson(result, collectionType);
+				
+				for(Image image : images) {
+					image.toString();
+				}
+				
+				listener.onSuccess(images);
 			}
 			
 			@Override
 			public void onFailure(Throwable t, String message) {
+				Log.e(TAG, "onFailure");
+				t.printStackTrace();
+				
 				listener.onFailure();
 			}
 		});
 	}
 	
-	public void getImages(Tag tag, final ImagesListener listener) {
-		httpClient.get(API_BASE_URL + "/images?tag=" + encode(tag.getValue()), new AsyncHttpResponseHandler() {
+	public void getImages(Tag tag, final ImagesListener listener, Date ... lastImageTimestamp) {
+		RequestParams params = new RequestParams();
+		params.put("tag", tag.getValue());
+		
+		httpClient.get(API_BASE_URL + "/images", params, new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
 				listener.onSuccess(null);
@@ -50,8 +78,13 @@ public class ImageWallApi {
 		});
 	}
 	
-	public void getTags(LatLonGeoPoint geoPoint, final TagsListener listener) {
-		httpClient.get(API_BASE_URL + "/tags?location=" + encode(geoPoint.getLat() + "," + geoPoint.getLon()), new AsyncHttpResponseHandler() {
+	public void getTags(Location geoPoint, final TagsListener listener) {
+		RequestParams params = new RequestParams();
+		params.put("lat", Double.toString(geoPoint.getLat()));
+		params.put("lon", Double.toString(geoPoint.getLon()));
+		params.put("radius", Integer.toString(100));
+		
+		httpClient.get(API_BASE_URL + "/tags", params, new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
 				listener.onSuccess(null);
@@ -65,7 +98,7 @@ public class ImageWallApi {
 	}
 	
 	public void getImage(int id, final ImageListener listener) {
-		httpClient.get(API_BASE_URL + "/images/" + id, new AsyncHttpResponseHandler() {
+		httpClient.get(API_BASE_URL + "/images/id/" + id, new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
 				listener.onSuccess(null);
@@ -78,8 +111,37 @@ public class ImageWallApi {
 		});
 	}
 	
-	public void uploadImage(Bitmap image, final ImageWallListener listener) {
-		httpClient.post(API_BASE_URL + "/images", new AsyncHttpResponseHandler() {
+	public void getBitmap(BitmapSizeType type, String imageName, final BitmapListener listener) {
+		String[] allowedContentTypes = new String[] { "image/jpeg" };
+		httpClient.get(API_BASE_URL + "/files/images/" + type.getUrl() + "/" + imageName, new BinaryHttpResponseHandler(allowedContentTypes) {
+		    @Override
+		    public void onSuccess(byte[] fileData) {
+		    	Bitmap image = BitmapFactory.decodeByteArray(fileData, 0, fileData.length);
+		    	listener.onSuccess(image);
+		    }
+		    
+		    @Override
+			public void onFailure(Throwable t, String message) {
+				listener.onFailure();
+			}
+		    
+		});
+	}
+	
+	public void uploadImage(Bitmap image, String description, String tagValue, Location location, final ImageWallListener listener) {
+		RequestParams params = new RequestParams();
+		if (description != null) {
+			params.put("description", description);
+		}
+		
+		params.put("tag", tagValue);
+		
+		if (location != null) {
+			params.put("lat", Double.toString(location.getLat()));
+			params.put("lon", Double.toString(location.getLon()));
+		}
+		
+		httpClient.post(API_BASE_URL + "/images", params, new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
 				listener.onSuccess();
@@ -92,26 +154,43 @@ public class ImageWallApi {
 		});
 	}
 	
-	private String encode(String string) {
-		try {
-			return URLEncoder.encode(string, "UTF-8");
-		} catch (UnsupportedEncodingException ignorable) {}
+	public enum BitmapSizeType {
 		
-		return string;
+		ORIGINAL("original"),
+		WEB_DEFAULT("default"),
+		THUMBNAIL_EMBEDDED("thumbnail/embedded"),
+		THUMBNAIL_SQUARE("thumbnail/square"),
+		THUMBNAIL_ANDROID("thumbnail/android");
+		
+		private String url;
+	
+		BitmapSizeType(String url) {
+			this.url = url;
+		}
+		
+		public String getUrl() {
+			return url;
+		}
+		
 	}
 	
-	public interface ImageListener {
+	public interface BitmapListener {
 		public void onSuccess(Bitmap image);
 		public void onFailure();
 	}
 	
+	public interface ImageListener {
+		public void onSuccess(Image image);
+		public void onFailure();
+	}
+	
 	public interface TagsListener {
-		public void onSuccess(List<Tag> tags);
+		public void onSuccess(Collection<Tag> tags);
 		public void onFailure();
 	}
 	
 	public interface ImagesListener {
-		public void onSuccess(List<Bitmap> images);
+		public void onSuccess(Collection<Image> images);
 		public void onFailure();
 	}
 	

@@ -1,31 +1,44 @@
 package com.svenkapudija.imagewall;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 
-public class ImageActivity extends Activity {
+import com.svenkapudija.imagewall.base.ImageWallActivity;
 
+public class ImageActivity extends ImageWallActivity {
+
+	private ImageButton map;
+	private Button tag;
+	
+	@Override
+	public void initUI() {
+		map = (ImageButton) findViewById(R.id.imageButton_map);
+		tag = (Button) findViewById(R.id.button_tag);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image);
 		
-		ImageButton newImage = (ImageButton) findViewById(R.id.imageButton_newImage);
-		newImage.setOnClickListener(new OnClickListener() {
+		map.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent(ImageActivity.this, NewImageActivity.class);
-				startActivity(i);
+				
 			}
 		});
 		
-		
-		
+		tag.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+			}
+		});
 	}
 
 }

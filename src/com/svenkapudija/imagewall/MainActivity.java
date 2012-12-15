@@ -2,6 +2,7 @@ package com.svenkapudija.imagewall;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -11,8 +12,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -20,17 +24,16 @@ import android.widget.ListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.svenkapudija.android.fileutils.AndroidFileUtils;
 import com.svenkapudija.imagechooser.AlertDialogImageChooser;
 import com.svenkapudija.imagechooser.ImageChooser;
 import com.svenkapudija.imagechooser.ImageChooserListener;
 import com.svenkapudija.imagechooser.StorageOption;
 import com.svenkapudija.imagechooser.settings.AlertDialogImageChooserSettings;
 import com.svenkapudija.imageresizer.ImageResizer;
-import com.svenkapudija.imageresizer.operations.DimensionUnit;
 import com.svenkapudija.imagewall.adapters.TimelineAdapter;
 import com.svenkapudija.imagewall.api.ImageWallApi.ImagesListener;
 import com.svenkapudija.imagewall.base.ImageWallActivity;
+import com.svenkapudija.imagewall.caching.ImageWallFileUtils;
 import com.svenkapudija.imagewall.models.Image;
 
 public class MainActivity extends ImageWallActivity {
@@ -58,7 +61,7 @@ public class MainActivity extends ImageWallActivity {
 		setContentView(R.layout.activity_main);
 		
 		chooser = new AlertDialogImageChooser(this, CHOOSER_IMAGE_REQUEST_CODE, new AlertDialogImageChooserSettings(true));
-		chooser.saveImageTo(StorageOption.SD_CARD_APP_ROOT, "images", "image_" + 1 + ".jpg");
+		chooser.saveImageTo(StorageOption.SD_CARD_APP_ROOT, "imagesToUpload", Long.toString(new Date().getTime()));
 		
 		newImage.setOnClickListener(new OnClickListener() {
 			@Override
@@ -78,30 +81,38 @@ public class MainActivity extends ImageWallActivity {
 				getApi().getImages(new ImagesListener() {
 					
 					@Override
-					public void onSuccess(List<Bitmap> images) {
-						
+					public void onSuccess(Collection<Image> images) {
+						for(Image image : images) {
+							Log.e(TAG, image.toString());
+						}
 						
 						listView.onRefreshComplete();
 					}
 					
 					@Override
 					public void onFailure() {
-						
+						listView.onRefreshComplete();
 					}
 				});
 			}
 		});
 		
-		AndroidFileUtils utils = new AndroidFileUtils(this);
-		
-		int totalImages = utils.getCount(AndroidFileUtils.StorageOption.SD_CARD_APP_ROOT, "images");
-		for(int i = 0; i < totalImages; i++) {
-			adapter.add(new Image(0, "Ovo je testiranje", null));
+		ImageWallFileUtils utils = new ImageWallFileUtils(this);
+		List<Integer> ids = utils.getImagesIds();
+		for(int id : ids) {
+			for(int i = 0; i < 10; i++) {
+				adapter.add(new Image(id, "Ovo je testiranje", null));
+			}
 		}
+		
+		listView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				Intent i = new Intent(MainActivity.this, ImageActivity.class);
+				startActivity(i);
+			}
+		});
 	}
-	
-	private static final int LIST_ROW_IMAGE_WIDTH_DP = 275;
-	private static final int LIST_ROW_IMAGE_HEIGHT_DP = 90;
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -111,9 +122,6 @@ public class MainActivity extends ImageWallActivity {
 	            @Override
 	            public void onResult(final Bitmap image, final File ... savedImages) {
 	            	resizeAndSave(image, savedImages);
-	            	
-//					Intent i = new Intent(MainActivity.this, NewImageActivity.class);
-//					startActivity(i);
 	            }
 
 				private void resizeAndSave(final Bitmap image, final File... savedImages) {
@@ -137,7 +145,7 @@ public class MainActivity extends ImageWallActivity {
 
 						@Override
 	            		protected Bitmap doInBackground(Void... params) {
-	            			Bitmap cropped = ImageResizer.resize(savedImages[0], true, LIST_ROW_IMAGE_WIDTH_DP, LIST_ROW_IMAGE_HEIGHT_DP, DimensionUnit.DP, MainActivity.this);
+	            			Bitmap cropped = ImageResizer.resize(savedImages[0], true, 1280, 800);
 	    	            	image.recycle();
 	    	            	
 	            			return cropped;
@@ -147,11 +155,15 @@ public class MainActivity extends ImageWallActivity {
 	            		protected void onPostExecute(Bitmap result) {
 	            			super.onPostExecute(result);
 	            			
+	            			result.recycle();
+	            			
 	            			if(dialog != null) {
 	            				dialog.cancel();
 	            			}
 	            			
-	            			adapter.add(new Image(0, "Ovo je testiranje", null));
+	            			Intent i = new Intent(MainActivity.this, NewImageActivity.class);
+	        				startActivity(i);
+	            			//adapter.add(new Image(0, "Ovo je testiranje", null));
 	            		}
 	            		
 					}.execute();
@@ -163,6 +175,11 @@ public class MainActivity extends ImageWallActivity {
 	            }
 	        });
 	    }
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 
 }

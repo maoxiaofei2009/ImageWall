@@ -89,10 +89,10 @@
             android:cacheColorHint="@android:color/transparent"
             android:divider="@drawable/listview_empty_divider"
             android:dividerHeight="@dimen/divider_height"
+            android:listSelector="@drawable/listview_selector"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:scrollbarStyle="outsideOverlay" >
-
         </com.handmark.pulltorefresh.library.PullToRefreshListView>
     </RelativeLayout>
 

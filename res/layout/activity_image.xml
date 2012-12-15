@@ -18,12 +18,28 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
             android:src="@drawable/logo" />
+        
+        <ImageButton
+            android:id="@+id/imageButton_map"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/button_transparent"
+            android:src="@drawable/action_bar_pinpoint" />
+
+        <ImageView
+            android:id="@+id/separator"
+            android:layout_width="1dp"
+            android:layout_height="48dp"
+            android:layout_toLeftOf="@+id/imageButton_map"
+            android:src="@color/action_bar_separator_white_opacity_37" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/relativeLayout_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/relativeLayout_footer"
         android:layout_below="@+id/relativeLayout_header" >
 
         <ImageView
@@ -37,38 +53,39 @@
             android:scaleType="centerCrop"
             android:src="@drawable/dummy_list_image" />
 
-       
     </RelativeLayout>
- <RelativeLayout
-            android:id="@+id/relativeLayout_footer"
-            android:layout_width="match_parent"
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout_footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:padding="16dp" >
+
+        <TextView
+            android:id="@+id/textView_taggedWith"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@android:color/white"
-            android:padding="16dp" >
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp"
+            android:text="Tagged with:" />
 
-            <TextView
-                android:id="@+id/textView_taggedWith"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="8dp"
-                android:text="Tagged with:" />
+        <Button
+            android:id="@+id/button_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/textView_taggedWith"
+            android:background="@drawable/button_tag"
+            android:paddingBottom="3dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingTop="3dp"
+            android:src="@drawable/button_blue"
+            android:text="FER"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_small" />
+    </RelativeLayout>
 
-            <Button
-                android:id="@+id/button_tag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/textView_taggedWith"
-                android:background="@drawable/button_tag"
-                android:paddingBottom="3dp"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="3dp"
-                android:src="@drawable/button_blue"
-                android:text="FER"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/text_small" />
-        </RelativeLayout>
 </RelativeLayout>

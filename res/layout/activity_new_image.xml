@@ -131,7 +131,7 @@
             android:textSize="@dimen/text_small" />
 
         <EditText
-            android:id="@+id/editText_tagName"
+            android:id="@+id/editText_tagValue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/imageView_dottedLine3"
@@ -152,7 +152,7 @@
             android:id="@+id/checkBox_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/editText_tagName"
+            android:layout_below="@+id/editText_tagValue"
             android:button="@drawable/checkbox"
             android:checked="true"
             android:text="Use my current position"

@@ -1,8 +1,10 @@
 package com.svenkapudija.imagewall.base;
 
-import uk.co.senab.bitmapcache.BitmapLruCache;
 import android.app.Application;
 import android.content.Context;
+
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
+import com.svenkapudija.imagewall.caching.BitmapLruCache;
 
 public class ImageWallApplication extends Application {
 
@@ -12,8 +14,9 @@ public class ImageWallApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		// Using default constructor, using 1/8th of Heap space (RAM)
 		cache = new BitmapLruCache(this);
+		
+		LocationLibrary.initialiseLibrary(getBaseContext(), "com.svenkapudija.imagewall");
 	}
 
 	public BitmapLruCache getBitmapCache() {
