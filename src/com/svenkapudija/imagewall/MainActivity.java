@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import android.app.Activity;
@@ -14,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -121,7 +123,7 @@ public class MainActivity extends ImageWallActivity {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		listItems = images;
 	}
 
@@ -176,13 +178,16 @@ public class MainActivity extends ImageWallActivity {
 			
 			@Override
 			public void onSuccess(Collection<Image> images) {
+				List<Image> imagesList = new ArrayList<Image>(images);
+				Collections.reverse(imagesList);
+				
 				RuntimeExceptionDao<Image, Integer> imagesDao = getHelper().getImagesDao();
 				RuntimeExceptionDao<Tag, Integer> tagsDao = getHelper().getTagsDao();
 				RuntimeExceptionDao<Location, Integer> locationsDao = getHelper().getLocationsDao();
 				
 				listItems.clear();
 				
-				for(Image image : images) {
+				for(Image image : imagesList) {
 					Tag tag = image.getTag();
 					if(tag != null) {
 						tagsDao.createOrUpdate(tag);
@@ -193,19 +198,26 @@ public class MainActivity extends ImageWallActivity {
 						locationsDao.createOrUpdate(location);
 					}
 					
-					imagesDao.createOrUpdate(image).isCreated();
-					listItems.add(0, image);
-				}
-				
-				adapter.notifyDataSetChanged();
-				
-				for(FetchImagesListener listener : listeners) {
-					listener.onSuccess();
+					imagesDao.createOrUpdate(image);
 				}
 				
 				if(images.size() == 0) {
 					showErrorDialog();
+				} else {
+					addToAdapterList(imagesList);
 				}
+				
+				for(FetchImagesListener listener : listeners) {
+					listener.onSuccess();
+				}
+			}
+
+			private void addToAdapterList(List<Image> imagesList) {
+				Collections.reverse(imagesList);
+				for(Image image : imagesList) {
+					listItems.add(image);
+				}
+				adapter.notifyDataSetChanged();
 			}
 			
 			@Override
@@ -238,11 +250,16 @@ public class MainActivity extends ImageWallActivity {
 			
 			@Override
 			public void onSuccess(Collection<Image> images) {
+				List<Image> imagesListCreated = new ArrayList<Image>();
+				
+				List<Image> imagesList = new ArrayList<Image>(images);
+				Collections.reverse(imagesList);
+				
 				RuntimeExceptionDao<Image, Integer> imagesDao = getHelper().getImagesDao();
 				RuntimeExceptionDao<Tag, Integer> tagsDao = getHelper().getTagsDao();
 				RuntimeExceptionDao<Location, Integer> locationsDao = getHelper().getLocationsDao();
 				
-				for(Image image : images) {
+				for(Image image : imagesList) {
 					Tag tag = image.getTag();
 					if(tag != null) {
 						tagsDao.createOrUpdate(tag);
@@ -253,13 +270,18 @@ public class MainActivity extends ImageWallActivity {
 						locationsDao.createOrUpdate(location);
 					}
 					
-					boolean newRowCreated = imagesDao.createOrUpdate(image).isCreated();
-					if(newRowCreated) {
-						// Add it the to list
-						listItems.add(0, image);
-						adapter.notifyDataSetChanged();
+					boolean newImage = imagesDao.createOrUpdate(image).isCreated();
+					if(newImage) {
+						imagesListCreated.add(image);
 					}
 				}
+				
+				// Update adapter list
+				Collections.reverse(imagesListCreated);
+				for(Image image : imagesListCreated) {
+					listItems.add(image);
+				}
+				adapter.notifyDataSetChanged();
 				
 				listView.onRefreshComplete();
 				
