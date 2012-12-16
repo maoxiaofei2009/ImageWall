@@ -88,7 +88,7 @@ public class Location implements Parcelable {
 
 	@Override
 	public String toString() {
-		return "Location [lat=" + lat + ", lon=" + lon + "]";
+		return "Location [id=" + id + ", lat=" + lat + ", lon=" + lon + "]";
 	}
-	
+
 }

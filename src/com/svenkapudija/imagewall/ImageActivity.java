@@ -33,7 +33,6 @@ public class ImageActivity extends ImageWallActivity {
 	private Button tag;
 	
 	private RelativeLayout footerLayout;
-	private RelativeLayout tagLayout;
 	private TextView description;
 	
 	@Override
@@ -45,7 +44,6 @@ public class ImageActivity extends ImageWallActivity {
 		description = (TextView) findViewById(R.id.textView_description);
 		
 		footerLayout = (RelativeLayout) findViewById(R.id.relativeLayout_footer);
-		tagLayout = (RelativeLayout) findViewById(R.id.relativeLayout_tag);
 	}
 	
 	@Override
@@ -71,17 +69,8 @@ public class ImageActivity extends ImageWallActivity {
 
 	private void initTagButton() {
 		if(image.getTag() != null) {
-			tagLayout.setVisibility(View.VISIBLE);
-			tag.setText(image.getTag().getValue());
-			tag.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					Intent i = new Intent(ImageActivity.this, MainActivity.class);
-					i.putExtra(MainActivity.EXTRA_ACTION_SEARCH_TAG, image.getTag().getValue());
-					startActivity(i);
-				}
-			});
+			tag.setVisibility(View.VISIBLE);
+			tag.setText("#" + image.getTag().getValue());
 		}
 	}
 
@@ -101,14 +90,16 @@ public class ImageActivity extends ImageWallActivity {
 				
 				@Override
 				public void onClick(View v) {
-					
+					Intent i = new Intent(ImageActivity.this, MapsActivity.class);
+					i.putExtra(MapsActivity.EXTRA_LOCATION, image.getLocation());
+					startActivity(i);
 				}
 			});
 		}
 	}
 
 	private void fetchBitmapFromNetwork() {
-		final ProgressDialog dialog = ProgressDialog.show(this, null, "Loading image...");
+		final ProgressDialog dialog = ProgressDialog.show(this, null, getString(R.string.loading_image));
 		
 		getApi().getBitmap(ImageSizeType.ORIGINAL, image.getFileName(), new BitmapListener() {
 			
@@ -146,7 +137,11 @@ public class ImageActivity extends ImageWallActivity {
 			
 			@Override
 			public void onClick(View v) {
- 				Intent intent = new Intent();
+ 				openGalleryApp();
+			}
+
+			private void openGalleryApp() {
+				Intent intent = new Intent();
  				intent.setAction(Intent.ACTION_VIEW);
  				intent.setDataAndType(Uri.parse("file://" + getFileUtils().getImagePath(image.getFileName())), "image/*");
  				startActivity(intent);

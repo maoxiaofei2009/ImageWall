@@ -18,7 +18,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
             android:src="@drawable/logo" />
-        
+
         <ImageButton
             android:id="@+id/imageButton_map"
             android:layout_width="48dp"
@@ -35,42 +35,14 @@
             android:layout_toLeftOf="@+id/imageButton_map"
             android:src="@color/action_bar_separator_white_opacity_37"
             android:visibility="gone" />
-
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/relativeLayout_tag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/relativeLayout_header"
-        android:layout_marginTop="16dp"
-        android:background="@android:color/white"
-        android:padding="8dp"
-        android:visibility="gone" >
-
-        <Button
-            android:id="@+id/button_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:background="@drawable/button_tag"
-            android:paddingBottom="3dp"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
-            android:paddingTop="3dp"
-            android:src="@drawable/button_blue"
-            android:text="FER"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/text_small" />
-    </RelativeLayout>
-    
     <RelativeLayout
         android:id="@+id/relativeLayout_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/relativeLayout_footer"
-        android:layout_below="@+id/relativeLayout_tag" >
+        android:layout_below="@+id/relativeLayout_header" >
 
         <ImageButton
             android:id="@+id/imageButton_image"
@@ -79,9 +51,25 @@
             android:layout_centerVertical="true"
             android:background="@android:color/transparent"
             android:scaleType="centerInside" />
-
     </RelativeLayout>
 
+    <Button
+        android:id="@+id/button_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/relativeLayout_header"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/button_blue_tag"
+        android:paddingBottom="3dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="3dp"
+        android:src="@drawable/button_blue"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/text_medium"
+        android:visibility="gone" />
+    
     <RelativeLayout
         android:id="@+id/relativeLayout_footer"
         android:layout_width="match_parent"
@@ -96,9 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginRight="8dp"
-            android:text="This is my image description" />
-
+            android:layout_marginRight="8dp" />
     </RelativeLayout>
 
 </RelativeLayout>

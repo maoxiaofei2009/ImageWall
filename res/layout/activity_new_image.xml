@@ -34,7 +34,7 @@
             android:id="@+id/textView_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Post new image"
+            android:text="@string/post_new_image"
             android:textColor="@color/text_default"
             android:textSize="@dimen/text_large" />
 
@@ -65,7 +65,8 @@
             android:layout_below="@+id/imageView_image"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
-            android:src="@drawable/dotted_line" />
+            android:src="@drawable/dotted_line"
+            android:visibility="gone" />
 
         <EditText
             android:id="@+id/editText_imageDescription"
@@ -75,7 +76,7 @@
             android:layout_marginBottom="8dp"
             android:background="@drawable/edittext_background"
             android:ems="10"
-            android:hint="Image description (optional)"
+            android:hint="@string/image_description_optional"
             android:imeOptions="actionUnspecified"
             android:inputType="textCapSentences"
             android:paddingLeft="16dp"
@@ -90,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/editText_imageDescription"
-            android:text="Tag"
+            android:text="@string/tag"
             android:textColor="@color/text_default"
             android:textSize="@dimen/text_large" />
 
@@ -102,18 +103,6 @@
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
             android:src="@drawable/dotted_line" />
-
-        <TextView
-            android:id="@+id/textView_nearestTag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/imageView_dottedLine3"
-            android:layout_marginBottom="3dp"
-            android:layout_marginRight="4dp"
-            android:layout_toLeftOf="@+id/button_nearestTags"
-            android:text="Nearest tag:"
-            android:textColor="@color/text_light"
-            android:textSize="@dimen/text_small" />
 
         <Button
             android:id="@+id/button_nearestTags"
@@ -127,9 +116,10 @@
             android:paddingRight="12dp"
             android:paddingTop="3dp"
             android:src="@drawable/button_blue"
-            android:text="FER"
+            android:text="@string/nearest_tags"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/text_small" />
+            android:textSize="@dimen/text_small"
+            android:visibility="gone" />
 
         <EditText
             android:id="@+id/editText_tagValue"
@@ -139,7 +129,7 @@
             android:layout_marginBottom="8dp"
             android:background="@drawable/edittext_background"
             android:ems="10"
-            android:hint="Tag name"
+            android:hint="@string/tag_name_optional"
             android:inputType="text"
             android:paddingLeft="16dp"
             android:textColor="@color/text_default"
@@ -156,7 +146,7 @@
             android:layout_below="@+id/editText_tagValue"
             android:button="@drawable/checkbox"
             android:checked="true"
-            android:text="Attach location to an image"
+            android:text="@string/attach_location_to_an_image"
             android:textSize="@dimen/text_small" />
 
         <ImageView
@@ -185,7 +175,7 @@
             android:shadowDy="-1"
             android:shadowRadius="2"
             android:src="@drawable/button_blue"
-            android:text="Send"
+            android:text="@string/send"
             android:textColor="@android:color/white"
             android:textSize="@dimen/text_medium" />
     </RelativeLayout>

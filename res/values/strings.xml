@@ -3,4 +3,52 @@
 
     <string name="app_name">ImageWall</string>
 
+    <string name="search_by_tag">Search by tag...</string>
+
+    <string name="most_recent">Most recent</string>
+
+    <string name="post_new_image">Post new image</string>
+
+    <string name="image_description_optional">Image description (optional)</string>
+
+    <string name="tag">Tag</string>
+
+    <string name="nearest_tags">Nearest tags</string>
+
+    <string name="tag_name_optional">Tag name (optional)</string>
+
+    <string name="attach_location_to_an_image">Attach location to an image</string>
+
+    <string name="send">Send</string>
+
+    <string name="loading_image">Loading image...</string>
+
+    <string name="loading_images">Loading images...</string>
+
+    <string name="searching">Searching...</string>
+
+    <string name="pulltorefresh_release_label_let_go">Let go!</string>
+
+    <string name="there_is_no_images_with_tag">There is no images with tag \'%s\'.</string>
+
+    <string name="ok">OK</string>
+
+    <string name="couldnt_load_the_image_please_try_again">Couldn\'t load the image. Please try again.</string>
+
+    <string name="getting_your_location">Getting your location...</string>
+
+    <string name="your_location_it_currently_unavailable">Your location it currently unavailable. Do you want to try again or send image without location?</string>
+
+    <string name="try_again">Try again</string>
+
+    <string name="getting_nearest_tags">Getting nearest tags...</string>
+
+    <string name="couldnt_find_any_tag_around_your_location">Couldn\'t find any tag around your location</string>
+
+    <string name="uploading_your_image">Uploading your image...</string>
+
+    <string name="error_image_couldnt_be_uploaded">Error: image couldn\'t be uploaded.</string>
+
+    <string name="image_has_been_uploaded">Image has been uploaded</string>
+
 </resources>

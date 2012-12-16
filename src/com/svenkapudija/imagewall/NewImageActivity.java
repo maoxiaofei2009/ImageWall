@@ -1,6 +1,7 @@
 package com.svenkapudija.imagewall;
 
-
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import android.app.AlertDialog;
@@ -18,20 +19,19 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibraryConstants;
+import com.svenkapudija.imagewall.api.ImageWallApi.TagsListener;
 import com.svenkapudija.imagewall.api.ImageWallApi.UploadImageListener;
 import com.svenkapudija.imagewall.base.ImageWallActivity;
 import com.svenkapudija.imagewall.models.Location;
+import com.svenkapudija.imagewall.models.Tag;
 
 public class NewImageActivity extends ImageWallActivity {
 
-	public static final String EXTRA_NEAREST_TAGS = "nearest_tags";
-	
 	private static final int WAIT_FOR_LOCATION_IN_SECONDS = 10;
 	
 	private Location location;
@@ -39,7 +39,6 @@ public class NewImageActivity extends ImageWallActivity {
 	
 	private Button send;
 	private Button nearestTagsButton;
-	private TextView nearestTagTextView;
 	private EditText imageDescription;
 	private EditText tagValue;
 	private CheckBox useLocation;
@@ -48,7 +47,6 @@ public class NewImageActivity extends ImageWallActivity {
 	public void initUI() {
 		send = (Button) findViewById(R.id.button_send);
 		nearestTagsButton = (Button) findViewById(R.id.button_nearestTags);
-		nearestTagTextView = (TextView) findViewById(R.id.textView_nearestTag);
 		imageDescription = (EditText) findViewById(R.id.editText_imageDescription);
 		tagValue = (EditText) findViewById(R.id.editText_tagValue);
 		useLocation = (CheckBox) findViewById(R.id.checkBox_location);
@@ -59,10 +57,9 @@ public class NewImageActivity extends ImageWallActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_image);
 		
-		initNearestTags();
-		
 		if (isLocationAvailable()) {
 			LocationLibrary.forceLocationUpdate(this);
+			initNearestTags();
 		} else {
 			useLocation.setChecked(false);
 			useLocation.setVisibility(View.GONE);
@@ -88,7 +85,7 @@ public class NewImageActivity extends ImageWallActivity {
 			protected void onPreExecute() {
 				super.onPreExecute();
 				
-				waitingLocationDialog = ProgressDialog.show(NewImageActivity.this, null, "Getting your location...", true, false);
+				waitingLocationDialog = ProgressDialog.show(NewImageActivity.this, null, getString(R.string.getting_your_location), true, false);
 			}
 
 			@Override
@@ -106,24 +103,23 @@ public class NewImageActivity extends ImageWallActivity {
 			protected void onPostExecute(Void result) {
 				super.onPostExecute(result);
 				
-				if(waitingLocationDialog != null) {
+				if(waitingLocationDialog.isShowing()) {
 					waitingLocationDialog.cancel();
+					showTryAgainDialog();
 				}
-				
-				showTryAgainDialog();
 			}
 
 			private void showTryAgainDialog() {
 				AlertDialog.Builder builder = new AlertDialog.Builder(NewImageActivity.this);
-				builder.setMessage("Your location it currently unavailable. Do you want to try again or send image without location?");
-				builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+				builder.setMessage(getString(R.string.your_location_it_currently_unavailable));
+				builder.setPositiveButton(getString(R.string.send), new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						startImageUpload();
 					}
 				});
-				builder.setNegativeButton("Try again", new DialogInterface.OnClickListener() {
+				builder.setNegativeButton(getString(R.string.try_again), new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -137,33 +133,89 @@ public class NewImageActivity extends ImageWallActivity {
 		}.execute();
 	}
 	
+	private List<String> nearestTags;
+	
 	private void initNearestTags() {
-		final List<String> nearestTags = getIntent().getStringArrayListExtra(EXTRA_NEAREST_TAGS);
-		if(nearestTags != null) {
-			nearestTagsButton.setText(nearestTags.get(0));
-			nearestTagsButton.setOnClickListener(new OnClickListener() {
+		nearestTagsButton.setVisibility(View.VISIBLE);
+		nearestTagsButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				showNearestTagsDialog();
+			}
+		});
+
+		fetchTags(new TagsListener() {
+			
+			@Override
+			public void onSuccess(Collection<Tag> tagsCollection) {
+				nearestTags = new ArrayList<String>();
+				nearestTags.clear();
+				for(Tag tag : tagsCollection) {
+					nearestTags.add(tag.getValue());
+				}
+			}
+			
+			@Override
+			public void onFailure() {}
+			
+		});
+	}
+
+	private void showNearestTagsDialog() {
+		if(nearestTags == null) {
+			final ProgressDialog dialog = ProgressDialog.show(this, null, getString(R.string.getting_nearest_tags), true, false);
+			
+			fetchTags(new TagsListener() {
 				
 				@Override
-				public void onClick(View v) {
-					final String[] items = new String[nearestTags.size()];
-					nearestTags.toArray(items);
+				public void onSuccess(Collection<Tag> tagsCollection) {
+					dialog.cancel();
 					
-					AlertDialog.Builder builder = new AlertDialog.Builder(NewImageActivity.this);
-					builder.setTitle("Nearest tags");
-					builder.setItems(items, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.cancel();
-							tagValue.setText(items[which]);
-						}
-					});
+					nearestTags = new ArrayList<String>();
+					nearestTags.clear();
+					for(Tag tag : tagsCollection) {
+						nearestTags.add(tag.getValue());
+					}
+					
+					showNearestTagsDialog();
+				}
+				
+				@Override
+				public void onFailure() {
+					dialog.cancel();
+					
+				}
+				
+			});
+		} else if(nearestTags.size() == 0) {
+			Toast.makeText(NewImageActivity.this, getString(R.string.couldnt_find_any_tag_around_your_location), Toast.LENGTH_LONG).show();
+		} else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(NewImageActivity.this);
+			
+			final String[] items = new String[nearestTags.size()];
+			nearestTags.toArray(items);
+			
+			builder.setTitle(getString(R.string.nearest_tags));
+			builder.setItems(items, new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					tagValue.setText(items[which]);
 				}
 			});
-		} else {
-			nearestTagTextView.setVisibility(View.GONE);
-			nearestTagsButton.setVisibility(View.GONE);
+			
+			builder.create().show();
 		}
+	}
+	
+	private void fetchTags(TagsListener listener) {
+		LocationInfo locationInfo = new LocationInfo(this);
+		locationInfo.refresh(this);
+		Location myCurrentPosition = new Location(locationInfo.lastLat, locationInfo.lastLong);
+		
+		getApi().getTags(myCurrentPosition, listener);
 	}
 
 	private boolean isLocationAvailable() {
@@ -175,7 +227,7 @@ public class NewImageActivity extends ImageWallActivity {
 	}
 	
 	private void startImageUpload() {
-		final ProgressDialog apiProgress = ProgressDialog.show(NewImageActivity.this, null, "Uploading your image...", true, false);
+		final ProgressDialog apiProgress = ProgressDialog.show(NewImageActivity.this, null, getString(R.string.uploading_your_image), true, false);
 		
 		String description = imageDescription.getText().toString();
 		String tag = tagValue.getText().toString();
@@ -188,7 +240,7 @@ public class NewImageActivity extends ImageWallActivity {
 					apiProgress.cancel();
 				}
 				
-				openMainActivity();
+				openMainActivity(true);
 			}
 
 			@Override
@@ -198,22 +250,23 @@ public class NewImageActivity extends ImageWallActivity {
 				}
 				
 				AlertDialog.Builder builder = new AlertDialog.Builder(NewImageActivity.this);
-				builder.setMessage("Error: image couldn't be sent.");
-				builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+				builder.setMessage(getString(R.string.error_image_couldnt_be_uploaded));
+				builder.setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						openMainActivity();
+						openMainActivity(false);
 					}
 				});
 			}
 			
-			private void openMainActivity() {
-				Toast.makeText(NewImageActivity.this, "Image has been sent successfully", Toast.LENGTH_LONG).show();
+			private void openMainActivity(boolean refresh) {
+				Toast.makeText(NewImageActivity.this, getString(R.string.image_has_been_uploaded), Toast.LENGTH_LONG).show();
 				
-				Intent i = new Intent(NewImageActivity.this, MainActivity.class);
-				i.putExtra(MainActivity.EXTRA_ACTION_REFRESH, true);
-				startActivity(i);
+				if(refresh) {
+					setResult(RESULT_OK);
+				}
+				finish();
 			}
 			
 		});

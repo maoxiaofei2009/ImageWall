@@ -3,16 +3,17 @@ package com.svenkapudija.imagewall.api;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-
-import org.apache.http.HttpEntity;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -33,30 +34,19 @@ public class ImageWallApi {
 	public ImageWallApi() {
 		httpClient = new AsyncHttpClient();
 		httpClient.addHeader("Accept", "application/json");
+		httpClient.setTimeout(30000);
 	}
 
 	public void getImages(final ImagesListener listener, Date ... lastImageTimestamp) {
 		httpClient.get(API_BASE_URL + "/images", new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
-				GsonBuilder gsonBuilder = new GsonBuilder();
-				gsonBuilder.setDateFormat("yyyy-MM-dd HH:mm:ss");
-				
-				Type collectionType = new TypeToken<Collection<Image>>(){}.getType();
-				Collection<Image> images = gsonBuilder.create().fromJson(result, collectionType);
-				
-				for(Image image : images) {
-					image.toString();
-				}
-				
+				Collection<Image> images = jsonToImagesCollection(result);
 				listener.onSuccess(images);
 			}
-			
+
 			@Override
 			public void onFailure(Throwable t, String message) {
-				Log.e(TAG, "onFailure");
-				t.printStackTrace();
-				
 				listener.onFailure();
 			}
 		});
@@ -69,7 +59,8 @@ public class ImageWallApi {
 		httpClient.get(API_BASE_URL + "/images", params, new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
-				listener.onSuccess(null);
+				Collection<Image> images = jsonToImagesCollection(result);
+				listener.onSuccess(images);
 			}
 			
 			@Override
@@ -77,6 +68,20 @@ public class ImageWallApi {
 				listener.onFailure();
 			}
 		});
+	}
+	
+	private Collection<Image> jsonToImagesCollection(String result) {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.setDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		Collection<Image> images = new ArrayList<Image>();
+		
+		try {
+			Type collectionType = new TypeToken<Collection<Image>>(){}.getType();
+			images = gsonBuilder.create().fromJson(result, collectionType);
+		} catch(JsonSyntaxException ignorable) {}
+		
+		return images;
 	}
 	
 	public void getTags(Location geoPoint, final TagsListener listener) {
@@ -88,7 +93,14 @@ public class ImageWallApi {
 		httpClient.get(API_BASE_URL + "/tags", params, new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
-				listener.onSuccess(null);
+				Collection<Tag> tags = new ArrayList<Tag>();
+				
+				try {
+					Type collectionType = new TypeToken<Collection<Tag>>(){}.getType();
+					tags = new Gson().fromJson(result, collectionType);
+				} catch(JsonSyntaxException ignorable) {}
+				
+				listener.onSuccess(tags);
 			}
 			
 			@Override

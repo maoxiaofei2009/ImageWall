@@ -7,7 +7,10 @@ import java.util.Collection;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -18,6 +21,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -33,17 +37,20 @@ import com.svenkapudija.imagewall.adapters.TimelineAdapter;
 import com.svenkapudija.imagewall.api.ImageWallApi.ImagesListener;
 import com.svenkapudija.imagewall.base.ImageWallActivity;
 import com.svenkapudija.imagewall.models.Image;
+import com.svenkapudija.imagewall.models.Location;
 import com.svenkapudija.imagewall.models.Tag;
 
 public class MainActivity extends ImageWallActivity {
 	
-	public static final String EXTRA_ACTION_REFRESH = "action_refresh";
-	public static final String EXTRA_ACTION_SEARCH_TAG = "action_search";
 	private static final int CHOOSER_IMAGE_REQUEST_CODE = 1000;
-
+	private static final int NEW_IMAGE_REQUEST_CODE = 1001;
+	
 	private ImageChooser chooser;
-	private List<Image> listItems;
+	private List<Image> listItems = new ArrayList<Image>();
 	private ArrayAdapter<Image> adapter;
+	
+	private TextView header;
+	private ImageButton searchActionBar;
 	
 	private ImageButton newImage;
 	private PullToRefreshListView listView;
@@ -51,7 +58,17 @@ public class MainActivity extends ImageWallActivity {
 	@Override
 	public void initUI() {
 		newImage = (ImageButton) findViewById(R.id.imageButton_newImage);
+		header = (TextView) findViewById(R.id.textView_header);
 		listView = (PullToRefreshListView) findViewById(R.id.listView);
+		
+		searchActionBar = (ImageButton) findViewById(R.id.imageButton_search);
+		searchActionBar.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				onSearchRequested();
+			}
+		});
 	}
 	
 	@Override
@@ -61,7 +78,14 @@ public class MainActivity extends ImageWallActivity {
 		
 		initImageChooser();
 		
-		initListItemsFromDb();
+		Intent intent = getIntent();
+		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+			String query = intent.getStringExtra(SearchManager.QUERY);
+			performSearch(query);
+		} else {
+			initListItemsFromDb();
+		}
+		
 		adapter = new TimelineAdapter(this, listItems);
 		initListView();
 		
@@ -73,8 +97,8 @@ public class MainActivity extends ImageWallActivity {
 		});
 		
 		// Fetch new images if necessary
-		if(listItems.size() == 0 || actionFetchNewImages()) {
-			final ProgressDialog dialog = ProgressDialog.show(this, null, "Loading images...", true, false);
+		if(listItems.size() == 0) {
+			final ProgressDialog dialog = ProgressDialog.show(this, null, getString(R.string.loading_images), true, false);
 			fetchImagesFromNetwork(new FetchImagesListener() {
 				
 				@Override
@@ -88,26 +112,6 @@ public class MainActivity extends ImageWallActivity {
 				}
 			});
 		}
-		
-		Bundle b = getIntent().getExtras();
-		if(b != null) {
-			String searchImagesWithTag = b.getString(EXTRA_ACTION_SEARCH_TAG, null);
-			if(searchImagesWithTag != null) {
-				getApi().getImages(new Tag(searchImagesWithTag), new ImagesListener() {
-					
-					@Override
-					public void onSuccess(Collection<Image> images) {
-						
-					}
-					
-					@Override
-					public void onFailure() {
-						
-					}
-				});
-			}
-		}
-		
 	}
 	
 	private void initListItemsFromDb() {
@@ -124,7 +128,7 @@ public class MainActivity extends ImageWallActivity {
 	private void initListView() {
 		listView.setAdapter(adapter);
 		
-		listView.setReleaseLabel("Let go!");
+		listView.setReleaseLabel(getString(R.string.pulltorefresh_release_label_let_go));
 		listView.setOnRefreshListener(new OnRefreshListener<ListView>() {
 			@Override
 			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
@@ -148,25 +152,107 @@ public class MainActivity extends ImageWallActivity {
 		chooser = new AlertDialogImageChooser(this, CHOOSER_IMAGE_REQUEST_CODE, new AlertDialogImageChooserSettings(true));
 		chooser.saveImageTo(StorageOption.SD_CARD_APP_ROOT, "imageToUpload", "myImage");
 	}
-
-	private boolean actionFetchNewImages() {
-		boolean fetchNewImages = false;
+	
+	private void performSearch(String searchText) {
+		header.setText("#" + searchText);
 		
-		Bundle b = getIntent().getExtras();
-		if(b != null) {
-			fetchNewImages = b.getBoolean(EXTRA_ACTION_REFRESH, false);
-		}
-		
-		return fetchNewImages;
+		final ProgressDialog dialog = ProgressDialog.show(this, null, getString(R.string.searching), true, false);
+		fetchImagesFromNetworkByTag(searchText, new FetchImagesListener() {
+			
+			@Override
+			public void onSuccess() {
+				dialog.cancel();
+			}
+			
+			@Override
+			public void onFailure() {
+				dialog.cancel();
+			}
+		});
 	}
 
+	private void fetchImagesFromNetworkByTag(final String tagValue, final FetchImagesListener ... listeners) {
+		getApi().getImages(new Tag(tagValue), new ImagesListener() {
+			
+			@Override
+			public void onSuccess(Collection<Image> images) {
+				RuntimeExceptionDao<Image, Integer> imagesDao = getHelper().getImagesDao();
+				RuntimeExceptionDao<Tag, Integer> tagsDao = getHelper().getTagsDao();
+				RuntimeExceptionDao<Location, Integer> locationsDao = getHelper().getLocationsDao();
+				
+				listItems.clear();
+				
+				for(Image image : images) {
+					Tag tag = image.getTag();
+					if(tag != null) {
+						tagsDao.createOrUpdate(tag);
+					}
+					
+					Location location = image.getLocation();
+					if(location != null) {
+						locationsDao.createOrUpdate(location);
+					}
+					
+					imagesDao.createOrUpdate(image).isCreated();
+					listItems.add(0, image);
+				}
+				
+				adapter.notifyDataSetChanged();
+				
+				for(FetchImagesListener listener : listeners) {
+					listener.onSuccess();
+				}
+				
+				if(images.size() == 0) {
+					showErrorDialog();
+				}
+			}
+			
+			@Override
+			public void onFailure() {
+				for(FetchImagesListener listener : listeners) {
+					listener.onFailure();
+				}
+				
+				showErrorDialog();
+			}
+			
+			private void showErrorDialog() {
+				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+				builder.setMessage(String.format(getString(R.string.there_is_no_images_with_tag), tagValue));
+				builder.setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				});
+				
+				builder.create().show();
+			}
+		});
+	}
+	
 	private void fetchImagesFromNetwork(final FetchImagesListener ... listeners) {
 		getApi().getImages(new ImagesListener() {
 			
 			@Override
 			public void onSuccess(Collection<Image> images) {
 				RuntimeExceptionDao<Image, Integer> imagesDao = getHelper().getImagesDao();
+				RuntimeExceptionDao<Tag, Integer> tagsDao = getHelper().getTagsDao();
+				RuntimeExceptionDao<Location, Integer> locationsDao = getHelper().getLocationsDao();
+				
 				for(Image image : images) {
+					Tag tag = image.getTag();
+					if(tag != null) {
+						tagsDao.createOrUpdate(tag);
+					}
+					
+					Location location = image.getLocation();
+					if(location != null) {
+						locationsDao.createOrUpdate(location);
+					}
+					
 					boolean newRowCreated = imagesDao.createOrUpdate(image).isCreated();
 					if(newRowCreated) {
 						// Add it the to list
@@ -200,22 +286,40 @@ public class MainActivity extends ImageWallActivity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    if (requestCode == CHOOSER_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-	        chooser.onActivityResult(data, new ImageChooserListener() {
+	    if (resultCode != Activity.RESULT_OK) {
+	    	return;
+	    }
+	    	
+	    if(requestCode == CHOOSER_IMAGE_REQUEST_CODE) {
+	    	chooser.onActivityResult(data, new ImageChooserListener() {
 
-	            @Override
-	            public void onResult(final Bitmap image, final File ... savedImages) {
-	            	image.recycle();
-	            	
-	            	Intent i = new Intent(MainActivity.this, NewImageActivity.class);
-    				startActivity(i);
-	            }
+	    		@Override
+	    		public void onResult(final Bitmap image, final File ... savedImages) {
+	    			image.recycle();
+	 	            
+	    			Intent i = new Intent(MainActivity.this, NewImageActivity.class);
+	    			startActivityForResult(i, NEW_IMAGE_REQUEST_CODE);
+	    		}
 
-	            @Override
-	            public void onError(String message) {
-	            	Toast.makeText(MainActivity.this, "Couldn't load the image. Please try again.", Toast.LENGTH_LONG).show();
-	            }
-	        });
+	    		@Override
+	    		public void onError(String message) {
+	    			Toast.makeText(MainActivity.this, getString(R.string.couldnt_load_the_image_please_try_again), Toast.LENGTH_LONG).show();
+	    		}
+	    	});
+	    } else if (requestCode == NEW_IMAGE_REQUEST_CODE) {
+	    	final ProgressDialog dialog = ProgressDialog.show(this, null, getString(R.string.loading_images), true, false);
+			fetchImagesFromNetwork(new FetchImagesListener() {
+				
+				@Override
+				public void onSuccess() {
+					dialog.cancel();
+				}
+				
+				@Override
+				public void onFailure() {
+					dialog.cancel();
+				}
+			});
 	    }
 	}
 

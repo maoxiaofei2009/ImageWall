@@ -20,9 +20,9 @@ public class Image implements Parcelable {
 	private int fileSize;
 	@DatabaseField
 	private String fileName;
-	@DatabaseField(foreign = true)
+	@DatabaseField(foreign = true, foreignAutoRefresh = true)
 	private Tag tag;
-	@DatabaseField(foreign = true)
+	@DatabaseField(foreign = true, foreignAutoRefresh = true)
 	private Location location;
 
 	public Image() {
