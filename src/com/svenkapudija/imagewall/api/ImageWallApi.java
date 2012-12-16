@@ -1,8 +1,12 @@
 package com.svenkapudija.imagewall.api;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Date;
+
+import org.apache.http.HttpEntity;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,9 +39,6 @@ public class ImageWallApi {
 		httpClient.get(API_BASE_URL + "/images", new AsyncHttpResponseHandler() {
 			@Override
 			public void onSuccess(String result) {
-				Log.e(TAG, "onSuccess");
-				Log.e(TAG, result);
-				
 				GsonBuilder gsonBuilder = new GsonBuilder();
 				gsonBuilder.setDateFormat("yyyy-MM-dd HH:mm:ss");
 				
@@ -111,7 +112,7 @@ public class ImageWallApi {
 		});
 	}
 	
-	public void getBitmap(BitmapSizeType type, String imageName, final BitmapListener listener) {
+	public void getBitmap(ImageSizeType type, String imageName, final BitmapListener listener) {
 		String[] allowedContentTypes = new String[] { "image/jpeg" };
 		httpClient.get(API_BASE_URL + "/files/images/" + type.getUrl() + "/" + imageName, new BinaryHttpResponseHandler(allowedContentTypes) {
 		    @Override
@@ -128,18 +129,26 @@ public class ImageWallApi {
 		});
 	}
 	
-	public void uploadImage(Bitmap image, String description, String tagValue, Location location, final ImageWallListener listener) {
+	public void uploadImage(Bitmap image, String description, String tagValue, Location location, final UploadImageListener listener) {
 		RequestParams params = new RequestParams();
 		if (description != null) {
 			params.put("description", description);
 		}
 		
-		params.put("tag", tagValue);
+		if (tagValue != null) {
+			params.put("tag", tagValue);
+		}
 		
 		if (location != null) {
 			params.put("lat", Double.toString(location.getLat()));
 			params.put("lon", Double.toString(location.getLon()));
 		}
+		
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+		byte[] bitmapByteArray = stream.toByteArray();
+		
+		params.put("image", new ByteArrayInputStream(bitmapByteArray), "myImage.jpg");
 		
 		httpClient.post(API_BASE_URL + "/images", params, new AsyncHttpResponseHandler() {
 			@Override
@@ -154,7 +163,7 @@ public class ImageWallApi {
 		});
 	}
 	
-	public enum BitmapSizeType {
+	public enum ImageSizeType {
 		
 		ORIGINAL("original"),
 		WEB_DEFAULT("default"),
@@ -164,7 +173,7 @@ public class ImageWallApi {
 		
 		private String url;
 	
-		BitmapSizeType(String url) {
+		ImageSizeType(String url) {
 			this.url = url;
 		}
 		
@@ -194,7 +203,7 @@ public class ImageWallApi {
 		public void onFailure();
 	}
 	
-	public interface ImageWallListener {
+	public interface UploadImageListener {
 		public void onSuccess();
 		public void onFailure();
 	}

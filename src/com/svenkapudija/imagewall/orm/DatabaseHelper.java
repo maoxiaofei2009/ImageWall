@@ -2,7 +2,6 @@ package com.svenkapudija.imagewall.orm;
 
 import java.sql.SQLException;
 
-import android.R;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -11,6 +10,7 @@ import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import com.svenkapudija.imagewall.R;
 import com.svenkapudija.imagewall.models.Image;
 import com.svenkapudija.imagewall.models.Location;
 import com.svenkapudija.imagewall.models.Tag;
@@ -31,7 +31,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private RuntimeExceptionDao<Tag, Integer> tagDao = null;
 
 	public DatabaseHelper(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION, 0);
+		super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
 	}
 
 	/**

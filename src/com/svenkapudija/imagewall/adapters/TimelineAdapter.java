@@ -3,7 +3,6 @@ package com.svenkapudija.imagewall.adapters;
 import java.util.List;
 
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,13 +53,21 @@ public class TimelineAdapter extends ArrayAdapter<Image> {
 			viewHolder = (ViewHolder) convertView.getTag();
 			
 			viewHolder.image.setBackgroundResource(R.drawable.loading_image);
-			//viewHolder.imageDescription.setVisibility(View.GONE);
 		}
 		
+		// Required because after the bitmap is fetched from network, row should
+		// refresh it's imageView only if it WASN'T recycled (because of ListView architecture)
 		viewHolder.position = position;
 		
-		cache.loadBitmap(position, viewHolder, image.getId());
-		viewHolder.imageDescription.setText(image.getDescription());
+		cache.loadBitmap(position, viewHolder, image.getFileName());
+		
+		String imageDescription = image.getDescription();
+		if(imageDescription != null && imageDescription.length() > 0) {
+			viewHolder.imageDescription.setText(imageDescription);
+			viewHolder.imageDescription.setVisibility(View.VISIBLE);
+		} else {
+			viewHolder.imageDescription.setVisibility(View.GONE);
+		}
 		
         return convertView;
     }

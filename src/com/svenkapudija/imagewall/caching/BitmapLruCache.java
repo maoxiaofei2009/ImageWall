@@ -14,13 +14,13 @@ import android.support.v4.util.LruCache;
 import com.svenkapudija.imagewall.adapters.TimelineAdapter.ViewHolder;
 import com.svenkapudija.imagewall.api.ImageWallApi;
 import com.svenkapudija.imagewall.api.ImageWallApi.BitmapListener;
-import com.svenkapudija.imagewall.api.ImageWallApi.BitmapSizeType;
-import com.svenkapudija.imagewall.api.ImageWallApi.ImageListener;
-import com.svenkapudija.imagewall.models.Image;
+import com.svenkapudija.imagewall.api.ImageWallApi.ImageSizeType;
 
 public class BitmapLruCache {
 
-	private LruCache<Integer, Bitmap> memoryCache;
+	private static final String TAG = BitmapLruCache.class.getName(); 
+	
+	private LruCache<String, Bitmap> memoryCache;
 	private ImageWallFileUtils fileUtils;
 	private Resources resources;
 	
@@ -37,9 +37,9 @@ public class BitmapLruCache {
 	    // Use 1/8th of the available memory for this memory cache.
 	    final int cacheSize = 1024 * 1024 * memClass / 8;
 
-	    memoryCache = new LruCache<Integer, Bitmap>(cacheSize) {
+	    memoryCache = new LruCache<String, Bitmap>(cacheSize) {
 	        @Override
-	        protected int sizeOf(Integer key, Bitmap bitmap) {
+	        protected int sizeOf(String key, Bitmap bitmap) {
 	            return getByteCount(bitmap);
 	        }
 	        
@@ -51,11 +51,11 @@ public class BitmapLruCache {
 	    };
 	}
 
-	public void loadBitmap(final int position, final ViewHolder viewHolder, final int key) {
-		new AsyncTask<Integer, Void, Bitmap>() {
+	public void loadBitmap(final int position, final ViewHolder viewHolder, final String key) {
+		new AsyncTask<String, Void, Bitmap>() {
 
 			@Override
-			protected Bitmap doInBackground(Integer... params) {
+			protected Bitmap doInBackground(String... params) {
 				return memoryCache.get(key);
 			}
 
@@ -67,7 +67,7 @@ public class BitmapLruCache {
 					if(viewHolder.position == position) {
 						viewHolder.image.setBackgroundDrawable(new BitmapDrawable(resources, result));
 					}
-			    } else if(fileUtils.existsImage(key)) {
+			    } else if(fileUtils.existsThumbnail(key)) {
 			    	GetBitmapFromDiskTask task = new GetBitmapFromDiskTask(viewHolder, position);
 			        task.execute(key);
 			    } else {
@@ -77,9 +77,6 @@ public class BitmapLruCache {
 			}
 			
 		}.execute();
-		
-	    //final Bitmap bitmap = getBitmapFromMemCache(key);
-	    
 	}
 	
 	private class GetBitmapFromNetworkTask {
@@ -92,39 +89,23 @@ public class BitmapLruCache {
 			this.position = position;
 		}
 		
-		public void execute(final int imageId) {
+		public void execute(final String imageName) {
 			final ImageWallApi api = new ImageWallApi();
-	    	api.getImage(imageId, new ImageListener() {
+			api.getBitmap(ImageSizeType.THUMBNAIL_ANDROID, imageName, new BitmapListener() {
 				
 				@Override
-				public void onSuccess(Image image) {
-					downloadBitmap(imageId, api, image);
-				}
-
-				private void downloadBitmap(final int imageId, final ImageWallApi api, Image image) {
-					api.getBitmap(BitmapSizeType.THUMBNAIL_ANDROID, image.getFileName(), new BitmapListener() {
-						
-						@Override
-						public void onSuccess(Bitmap image) {
-							try {
-								fileUtils.writeImage(null, imageId);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							
-//							addBitmapToMemoryCache(imageId, null);
-//							
-//							Bitmap bitmap = null;
-//							if(viewHolder.position == position) {
-//								viewHolder.image.setBackgroundDrawable(new BitmapDrawable(resources, bitmap));
-//							}
-						}
-						
-						@Override
-						public void onFailure() {
-							
-						}
-					});
+				public void onSuccess(Bitmap image) {
+					try {
+						fileUtils.writeThumbnail(image, imageName);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+					addBitmapToMemoryCache(imageName, image);
+					
+					if(viewHolder.position == position) {
+						viewHolder.image.setBackgroundDrawable(new BitmapDrawable(resources, image));
+					}
 				}
 				
 				@Override
@@ -135,7 +116,7 @@ public class BitmapLruCache {
 		}
 	}
 
-	private class GetBitmapFromDiskTask extends AsyncTask<Integer, Bitmap, Bitmap> {
+	private class GetBitmapFromDiskTask extends AsyncTask<String, Bitmap, Bitmap> {
 		
 		private ViewHolder viewHolder;
 		private int position;
@@ -146,10 +127,10 @@ public class BitmapLruCache {
 		}
 		
 	    @Override
-	    protected Bitmap doInBackground(Integer... params) {
-	    	int key = params[0];
+	    protected Bitmap doInBackground(String... params) {
+	    	String key = params[0];
 	    	
-	    	Bitmap imageOnDisk = fileUtils.getImage(key);
+	    	Bitmap imageOnDisk = fileUtils.getThumbnail(key);
 	    	publishProgress(imageOnDisk);
 	    	
 	        addBitmapToMemoryCache(key, imageOnDisk);
@@ -168,13 +149,13 @@ public class BitmapLruCache {
 	    
 	}
 	
-	public void addBitmapToMemoryCache(Integer key, Bitmap bitmap) {
+	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
 	    if (getBitmapFromMemCache(key) == null && !bitmap.isRecycled()) {
 	    	memoryCache.put(key, bitmap);
 	    }
 	}
 
-	public Bitmap getBitmapFromMemCache(Integer key) {
+	public Bitmap getBitmapFromMemCache(String key) {
 	    return memoryCache.get(key);
 	}
 	

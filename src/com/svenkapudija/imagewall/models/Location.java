@@ -1,9 +1,12 @@
 package com.svenkapudija.imagewall.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.j256.ormlite.field.DatabaseField;
 
 
-public class Location {
+public class Location implements Parcelable {
 	
 	@DatabaseField(generatedId = true)
 	private int id;
@@ -50,6 +53,38 @@ public class Location {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel parcel, int flags) {
+		parcel.writeInt(id);
+		parcel.writeDouble(lat);
+		parcel.writeDouble(lon);
+	}
+
+	public void readFromParcel(Parcel source) {
+		id = source.readInt();
+		lat = source.readDouble();
+		lon = source.readDouble();
+	}
+	
+	public static final Parcelable.Creator<Location> CREATOR = new Parcelable.Creator<Location>() {
+		public Location createFromParcel(Parcel in) {
+			Location route = new Location();
+			route.readFromParcel(in);
+			
+			return route;
+		}
+
+		@Override
+		public Location[] newArray(int size) {
+			return new Location[size];
+		}
+	};
 
 	@Override
 	public String toString() {

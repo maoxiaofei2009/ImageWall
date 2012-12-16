@@ -55,7 +55,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/imageView_dottedLine"
             android:scaleType="centerCrop"
-            android:src="@drawable/dummy_list_image" />
+            android:visibility="gone"
+            android:src="@drawable/loading_image" />
 
         <ImageView
             android:id="@+id/imageView_dottedLine2"
@@ -109,13 +110,13 @@
             android:layout_above="@+id/imageView_dottedLine3"
             android:layout_marginBottom="3dp"
             android:layout_marginRight="4dp"
-            android:layout_toLeftOf="@+id/button_nearestTag"
+            android:layout_toLeftOf="@+id/button_nearestTags"
             android:text="Nearest tag:"
             android:textColor="@color/text_light"
             android:textSize="@dimen/text_small" />
 
         <Button
-            android:id="@+id/button_nearestTag"
+            android:id="@+id/button_nearestTags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/imageView_dottedLine3"
@@ -155,7 +156,7 @@
             android:layout_below="@+id/editText_tagValue"
             android:button="@drawable/checkbox"
             android:checked="true"
-            android:text="Use my current position"
+            android:text="Attach location to an image"
             android:textSize="@dimen/text_small" />
 
         <ImageView

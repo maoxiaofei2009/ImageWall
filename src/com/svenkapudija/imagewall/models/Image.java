@@ -2,10 +2,13 @@ package com.svenkapudija.imagewall.models;
 
 import java.util.Date;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.j256.ormlite.field.DatabaseField;
 
 
-public class Image {
+public class Image implements Parcelable {
 
 	@DatabaseField(generatedId = true)
 	private int id;
@@ -87,6 +90,46 @@ public class Image {
 	public void setTag(Tag tag) {
 		this.tag = tag;
 	}
+	
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel parcel, int flags) {
+		parcel.writeInt(id);
+		parcel.writeString(description);
+		parcel.writeLong(dateCreated.getTime());
+		parcel.writeInt(fileSize);
+		parcel.writeString(fileName);
+		parcel.writeParcelable(tag, 0);
+		parcel.writeParcelable(location, 0);
+	}
+
+	public void readFromParcel(Parcel source) {
+		id = source.readInt();
+		description = source.readString();
+		dateCreated = new Date(source.readLong());
+		fileSize = source.readInt();
+		fileName = source.readString();
+		tag = source.readParcelable(Tag.class.getClassLoader());
+		location = source.readParcelable(Location.class.getClassLoader());
+	}
+	
+	public static final Parcelable.Creator<Image> CREATOR = new Parcelable.Creator<Image>() {
+		public Image createFromParcel(Parcel in) {
+			Image route = new Image();
+			route.readFromParcel(in);
+			
+			return route;
+		}
+
+		@Override
+		public Image[] newArray(int size) {
+			return new Image[size];
+		}
+	};
 
 	@Override
 	public String toString() {

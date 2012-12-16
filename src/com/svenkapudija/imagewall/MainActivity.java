@@ -1,18 +1,16 @@
 package com.svenkapudija.imagewall;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -20,26 +18,27 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.svenkapudija.imagechooser.AlertDialogImageChooser;
 import com.svenkapudija.imagechooser.ImageChooser;
 import com.svenkapudija.imagechooser.ImageChooserListener;
 import com.svenkapudija.imagechooser.StorageOption;
 import com.svenkapudija.imagechooser.settings.AlertDialogImageChooserSettings;
-import com.svenkapudija.imageresizer.ImageResizer;
 import com.svenkapudija.imagewall.adapters.TimelineAdapter;
 import com.svenkapudija.imagewall.api.ImageWallApi.ImagesListener;
 import com.svenkapudija.imagewall.base.ImageWallActivity;
-import com.svenkapudija.imagewall.caching.ImageWallFileUtils;
 import com.svenkapudija.imagewall.models.Image;
+import com.svenkapudija.imagewall.models.Tag;
 
 public class MainActivity extends ImageWallActivity {
 	
-	private static final String TAG = MainActivity.class.getName();
-	
+	public static final String EXTRA_ACTION_REFRESH = "action_refresh";
+	public static final String EXTRA_ACTION_SEARCH_TAG = "action_search";
 	private static final int CHOOSER_IMAGE_REQUEST_CODE = 1000;
 
 	private ImageChooser chooser;
@@ -60,8 +59,11 @@ public class MainActivity extends ImageWallActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		chooser = new AlertDialogImageChooser(this, CHOOSER_IMAGE_REQUEST_CODE, new AlertDialogImageChooserSettings(true));
-		chooser.saveImageTo(StorageOption.SD_CARD_APP_ROOT, "imagesToUpload", Long.toString(new Date().getTime()));
+		initImageChooser();
+		
+		initListItemsFromDb();
+		adapter = new TimelineAdapter(this, listItems);
+		initListView();
 		
 		newImage.setOnClickListener(new OnClickListener() {
 			@Override
@@ -70,48 +72,130 @@ public class MainActivity extends ImageWallActivity {
 			}
 		});
 		
-		listItems = new ArrayList<Image>();
-		adapter = new TimelineAdapter(this, listItems);
+		// Fetch new images if necessary
+		if(listItems.size() == 0 || actionFetchNewImages()) {
+			final ProgressDialog dialog = ProgressDialog.show(this, null, "Loading images...", true, false);
+			fetchImagesFromNetwork(new FetchImagesListener() {
+				
+				@Override
+				public void onSuccess() {
+					dialog.cancel();
+				}
+				
+				@Override
+				public void onFailure() {
+					dialog.cancel();
+				}
+			});
+		}
+		
+		Bundle b = getIntent().getExtras();
+		if(b != null) {
+			String searchImagesWithTag = b.getString(EXTRA_ACTION_SEARCH_TAG, null);
+			if(searchImagesWithTag != null) {
+				getApi().getImages(new Tag(searchImagesWithTag), new ImagesListener() {
+					
+					@Override
+					public void onSuccess(Collection<Image> images) {
+						
+					}
+					
+					@Override
+					public void onFailure() {
+						
+					}
+				});
+			}
+		}
+		
+	}
+	
+	private void initListItemsFromDb() {
+		List<Image> images = new ArrayList<Image>();
+		try {
+			images = getHelper().getImagesDao().queryBuilder().orderBy("dateCreated", false).query();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		listItems = images;
+	}
+
+	private void initListView() {
 		listView.setAdapter(adapter);
 		
 		listView.setReleaseLabel("Let go!");
 		listView.setOnRefreshListener(new OnRefreshListener<ListView>() {
 			@Override
 			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-				getApi().getImages(new ImagesListener() {
-					
-					@Override
-					public void onSuccess(Collection<Image> images) {
-						for(Image image : images) {
-							Log.e(TAG, image.toString());
-						}
-						
-						listView.onRefreshComplete();
-					}
-					
-					@Override
-					public void onFailure() {
-						listView.onRefreshComplete();
-					}
-				});
+				fetchImagesFromNetwork();
 			}
 		});
-		
-		ImageWallFileUtils utils = new ImageWallFileUtils(this);
-		List<Integer> ids = utils.getImagesIds();
-		for(int id : ids) {
-			for(int i = 0; i < 10; i++) {
-				adapter.add(new Image(id, "Ovo je testiranje", null));
-			}
-		}
 		
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+				position--; // Possible bug due PullToRefresh? [header counts as first row]
+				
 				Intent i = new Intent(MainActivity.this, ImageActivity.class);
+				i.putExtra(ImageActivity.EXTRA_IMAGE, listItems.get(position));
 				startActivity(i);
 			}
 		});
+	}
+
+	private void initImageChooser() {
+		chooser = new AlertDialogImageChooser(this, CHOOSER_IMAGE_REQUEST_CODE, new AlertDialogImageChooserSettings(true));
+		chooser.saveImageTo(StorageOption.SD_CARD_APP_ROOT, "imageToUpload", "myImage");
+	}
+
+	private boolean actionFetchNewImages() {
+		boolean fetchNewImages = false;
+		
+		Bundle b = getIntent().getExtras();
+		if(b != null) {
+			fetchNewImages = b.getBoolean(EXTRA_ACTION_REFRESH, false);
+		}
+		
+		return fetchNewImages;
+	}
+
+	private void fetchImagesFromNetwork(final FetchImagesListener ... listeners) {
+		getApi().getImages(new ImagesListener() {
+			
+			@Override
+			public void onSuccess(Collection<Image> images) {
+				RuntimeExceptionDao<Image, Integer> imagesDao = getHelper().getImagesDao();
+				for(Image image : images) {
+					boolean newRowCreated = imagesDao.createOrUpdate(image).isCreated();
+					if(newRowCreated) {
+						// Add it the to list
+						listItems.add(0, image);
+						adapter.notifyDataSetChanged();
+					}
+				}
+				
+				listView.onRefreshComplete();
+				
+				for(FetchImagesListener listener : listeners) {
+					listener.onSuccess();
+				}
+			}
+			
+			@Override
+			public void onFailure() {
+				listView.onRefreshComplete();
+				
+				for(FetchImagesListener listener : listeners) {
+					listener.onFailure();
+				}
+			}
+		});
+	}
+	
+	private interface FetchImagesListener {
+		public void onSuccess();
+		public void onFailure();
 	}
 	
 	@Override
@@ -121,65 +205,18 @@ public class MainActivity extends ImageWallActivity {
 
 	            @Override
 	            public void onResult(final Bitmap image, final File ... savedImages) {
-	            	resizeAndSave(image, savedImages);
+	            	image.recycle();
+	            	
+	            	Intent i = new Intent(MainActivity.this, NewImageActivity.class);
+    				startActivity(i);
 	            }
-
-				private void resizeAndSave(final Bitmap image, final File... savedImages) {
-					new AsyncTask<Void, Void, Bitmap>() {
-	            		
-	            		private ProgressDialog dialog;
-	            		
-	            		@Override
-						protected void onCancelled() {
-							super.onCancelled();
-							
-							dialog.cancel();
-						}
-
-						@Override
-						protected void onPreExecute() {
-							super.onPreExecute();
-							
-							dialog = ProgressDialog.show(MainActivity.this, null, "Resizing image...");
-						}
-
-						@Override
-	            		protected Bitmap doInBackground(Void... params) {
-	            			Bitmap cropped = ImageResizer.resize(savedImages[0], true, 1280, 800);
-	    	            	image.recycle();
-	    	            	
-	            			return cropped;
-	            		}
-	            		
-	            		@Override
-	            		protected void onPostExecute(Bitmap result) {
-	            			super.onPostExecute(result);
-	            			
-	            			result.recycle();
-	            			
-	            			if(dialog != null) {
-	            				dialog.cancel();
-	            			}
-	            			
-	            			Intent i = new Intent(MainActivity.this, NewImageActivity.class);
-	        				startActivity(i);
-	            			//adapter.add(new Image(0, "Ovo je testiranje", null));
-	            		}
-	            		
-					}.execute();
-				}
 
 	            @Override
 	            public void onError(String message) {
-	            	
+	            	Toast.makeText(MainActivity.this, "Couldn't load the image. Please try again.", Toast.LENGTH_LONG).show();
 	            }
 	        });
 	    }
-	}
-	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
 	}
 
 }
