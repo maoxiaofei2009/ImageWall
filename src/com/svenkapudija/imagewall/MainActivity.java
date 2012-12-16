@@ -213,9 +213,8 @@ public class MainActivity extends ImageWallActivity {
 			}
 
 			private void addToAdapterList(List<Image> imagesList) {
-				Collections.reverse(imagesList);
 				for(Image image : imagesList) {
-					listItems.add(image);
+					listItems.add(0, image);
 				}
 				adapter.notifyDataSetChanged();
 			}
@@ -276,13 +275,11 @@ public class MainActivity extends ImageWallActivity {
 					}
 				}
 				
-				// Update adapter list
-				Collections.reverse(imagesListCreated);
 				for(Image image : imagesListCreated) {
-					listItems.add(image);
+					listItems.add(0, image);
 				}
-				adapter.notifyDataSetChanged();
 				
+				adapter.notifyDataSetChanged();
 				listView.onRefreshComplete();
 				
 				for(FetchImagesListener listener : listeners) {
