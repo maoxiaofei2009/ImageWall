@@ -12,6 +12,9 @@ import com.svenkapudija.imagewall.overlays.LocationOverlay;
 
 public class MapsActivity extends MapActivity {
 
+	/**
+	 * {@link Location} provided from calling activity.
+	 */
 	public static final String EXTRA_LOCATION = "extra_location";
 	
 	private MapView mapView;
@@ -36,6 +39,12 @@ public class MapsActivity extends MapActivity {
 		
 	}
 
+	/**
+	 * Add pinpoint to map.
+	 * 
+	 * @param location
+	 * @return	{@link Location} converted to {@link LatLonGeoPoint}
+	 */
 	private LatLonGeoPoint addLocationToMap(Location location) {
 		LatLonGeoPoint locationGeoPoint = new LatLonGeoPoint(location.getLat(), location.getLon());
 		LocationOverlay locationOverlay = new LocationOverlay(getResources().getDrawable(R.drawable.map_marker));

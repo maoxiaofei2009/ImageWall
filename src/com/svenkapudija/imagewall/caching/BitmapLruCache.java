@@ -18,8 +18,6 @@ import com.svenkapudija.imagewall.api.ImageWallApi.ImageSizeType;
 
 public class BitmapLruCache {
 
-	private static final String TAG = BitmapLruCache.class.getName(); 
-	
 	private LruCache<String, Bitmap> memoryCache;
 	private ImageWallFileUtils fileUtils;
 	private Resources resources;
@@ -51,6 +49,13 @@ public class BitmapLruCache {
 	    };
 	}
 
+	/**
+	 * Load image from memory, disk or network.
+	 * 
+	 * @param position
+	 * @param viewHolder
+	 * @param key
+	 */
 	public void loadBitmap(final int position, final ViewHolder viewHolder, final String key) {
 		new AsyncTask<String, Void, Bitmap>() {
 
@@ -63,14 +68,14 @@ public class BitmapLruCache {
 			protected void onPostExecute(Bitmap result) {
 				super.onPostExecute(result);
 				
-				if (result != null) {
-					if(viewHolder.position == position) {
+				if (result != null) { // Memory
+					if(viewReused(viewHolder, position) == false) {
 						viewHolder.image.setBackgroundDrawable(new BitmapDrawable(resources, result));
 					}
-			    } else if(fileUtils.existsThumbnail(key)) {
+			    } else if(fileUtils.existsThumbnail(key)) { // Disk
 			    	GetBitmapFromDiskTask task = new GetBitmapFromDiskTask(viewHolder, position);
 			        task.execute(key);
-			    } else {
+			    } else { // Network
 			    	GetBitmapFromNetworkTask task = new GetBitmapFromNetworkTask(viewHolder, position);
 			        task.execute(key);
 			    }
@@ -103,11 +108,11 @@ public class BitmapLruCache {
 					
 					addBitmapToMemoryCache(imageName, image);
 					
-					if(viewHolder.position == position) {
+					if(viewReused(viewHolder, position) == false) {
 						viewHolder.image.setBackgroundDrawable(new BitmapDrawable(resources, image));
 					}
 				}
-				
+
 				@Override
 				public void onFailure() {
 					
@@ -142,11 +147,15 @@ public class BitmapLruCache {
 	    protected void onProgressUpdate(Bitmap... values) {
 	    	super.onProgressUpdate(values);
 	    	
-	    	if(viewHolder.position == position) {
+	    	if(viewReused(viewHolder, position) == false) {
 	    		viewHolder.image.setBackgroundDrawable(new BitmapDrawable(resources, values[0]));
 	    	}
 	    }
 	    
+	}
+	
+	private boolean viewReused(ViewHolder viewHolder, int position) {
+		return viewHolder.position != position;
 	}
 	
 	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {

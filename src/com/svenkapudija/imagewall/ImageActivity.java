@@ -22,6 +22,9 @@ import com.svenkapudija.imagewall.models.Image;
 
 public class ImageActivity extends ImageWallActivity {
 
+	/**
+	 * Image retrieved from calling activity.
+	 */
 	public static final String EXTRA_IMAGE = "image";
 	
 	private Bitmap imageBitmap;
@@ -67,6 +70,9 @@ public class ImageActivity extends ImageWallActivity {
 		}
 	}
 
+	/**
+	 * Set the {@link Button} text to tag value.
+	 */
 	private void initTagButton() {
 		if(image.getTag() != null) {
 			tag.setVisibility(View.VISIBLE);
@@ -74,6 +80,9 @@ public class ImageActivity extends ImageWallActivity {
 		}
 	}
 
+	/**
+	 * Set the {@link TextView} to image description.
+	 */
 	private void initDescriptionTextView() {
 		if(image.getDescription() != null) {
 			footerLayout.setVisibility(View.VISIBLE);
@@ -81,6 +90,9 @@ public class ImageActivity extends ImageWallActivity {
 		}
 	}
 
+	/**
+	 * Show icon in ActionBar if there is some location to show.
+	 */
 	private void initLocationButton() {
 		if(image.getLocation() != null) {
 			separator.setVisibility(View.VISIBLE);
@@ -98,6 +110,9 @@ public class ImageActivity extends ImageWallActivity {
 		}
 	}
 
+	/**
+	 * Fetch original bitmap from REST API.
+	 */
 	private void fetchBitmapFromNetwork() {
 		final ProgressDialog dialog = ProgressDialog.show(this, null, getString(R.string.loading_image));
 		
@@ -129,6 +144,12 @@ public class ImageActivity extends ImageWallActivity {
 		});
 	}
 	
+	/**
+	 * Fill the {@link ImageView} with {@link Bitmap} and set {@link OnClickListener}
+	 * to view the image in the Gallery app.
+	 * 
+	 * @param bitmap
+	 */
 	private void initImageContainer(final Bitmap bitmap) {
 		imageBitmap = bitmap;
 		

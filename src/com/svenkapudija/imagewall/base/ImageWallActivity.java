@@ -34,18 +34,32 @@ public abstract class ImageWallActivity extends Activity {
 		fileUtils = new ImageWallFileUtils(this);
 	}
 
+	/**
+	 * @return	Global {@link ImageWallApi} to use for REST API access.
+	 */
 	public ImageWallApi getApi() {
 		return api;
 	}
 	
+	/**
+	 * @return Global {@link ImageWallFileUtils} to use for file write/read from
+	 * SD Card.
+	 */
 	public ImageWallFileUtils getFileUtils() {
 		return fileUtils;
 	}
 	
+	/**
+	 * @return	Global {@link DatabaseHelper} to use for database access.
+	 */
 	public DatabaseHelper getHelper() {
 		return ((ImageWallApplication) getApplication()).getHelper();
 	}
 	
+	/**
+	 * <p>Initialize your layout views. For example</p>
+	 * <code>TextView header = (TextView) findViewById(R.id.textView_header);</code>
+	 */
 	public abstract void initUI();
 	
 }

@@ -32,6 +32,9 @@ import com.svenkapudija.imagewall.models.Tag;
 
 public class NewImageActivity extends ImageWallActivity {
 
+	/**
+	 * How much to wait to get some location?
+	 */
 	private static final int WAIT_FOR_LOCATION_IN_SECONDS = 10;
 	
 	private Location location;
@@ -57,7 +60,7 @@ public class NewImageActivity extends ImageWallActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_image);
 		
-		if (isLocationAvailable()) {
+		if (isLocationProviderAvailable()) {
 			LocationLibrary.forceLocationUpdate(this);
 			initNearestTags();
 		} else {
@@ -78,6 +81,10 @@ public class NewImageActivity extends ImageWallActivity {
 		});
 	}
 	
+	/**
+	 * Show dialog and wait for location...if fails, show the {@link AlertDialog} and eventually
+	 * try again.
+	 */
 	private void waitForLocationTask() {
 		new AsyncTask<Void, Void, Void>() {
 			
@@ -135,6 +142,9 @@ public class NewImageActivity extends ImageWallActivity {
 	
 	private List<String> nearestTags;
 	
+	/**
+	 * Start fetching nearest tags from REST API.
+	 */
 	private void initNearestTags() {
 		nearestTagsButton.setVisibility(View.VISIBLE);
 		nearestTagsButton.setOnClickListener(new OnClickListener() {
@@ -163,7 +173,7 @@ public class NewImageActivity extends ImageWallActivity {
 	}
 
 	private void showNearestTagsDialog() {
-		if(nearestTags == null) {
+		if(nearestTags == null) { // If previous call to retrieve tags wasn't fast enough, try again...
 			final ProgressDialog dialog = ProgressDialog.show(this, null, getString(R.string.getting_nearest_tags), true, false);
 			
 			fetchTags(new TagsListener() {
@@ -188,9 +198,9 @@ public class NewImageActivity extends ImageWallActivity {
 				}
 				
 			});
-		} else if(nearestTags.size() == 0) {
+		} else if(nearestTags.size() == 0) { // Tags are fetched, but there are none
 			Toast.makeText(NewImageActivity.this, getString(R.string.couldnt_find_any_tag_around_your_location), Toast.LENGTH_LONG).show();
-		} else {
+		} else { // Finally, show some tags
 			AlertDialog.Builder builder = new AlertDialog.Builder(NewImageActivity.this);
 			
 			final String[] items = new String[nearestTags.size()];
@@ -218,7 +228,10 @@ public class NewImageActivity extends ImageWallActivity {
 		getApi().getTags(myCurrentPosition, listener);
 	}
 
-	private boolean isLocationAvailable() {
+	/**
+	 * @return	<code>true</code> if either gps or network provided are available.
+	 */
+	private boolean isLocationProviderAvailable() {
 		LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         boolean gps = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
         boolean network = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
@@ -226,6 +239,9 @@ public class NewImageActivity extends ImageWallActivity {
         return gps || network;
 	}
 	
+	/**
+	 * Start the image upload process and onFinish return to calling activity.
+	 */
 	private void startImageUpload() {
 		final ProgressDialog apiProgress = ProgressDialog.show(NewImageActivity.this, null, getString(R.string.uploading_your_image), true, false);
 		
@@ -287,6 +303,9 @@ public class NewImageActivity extends ImageWallActivity {
 		unregisterReceiver(lftBroadcastReceiver);
 	}
 
+	/**
+	 * Receiver to listen for location changes.
+	 */
 	private final BroadcastReceiver lftBroadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {

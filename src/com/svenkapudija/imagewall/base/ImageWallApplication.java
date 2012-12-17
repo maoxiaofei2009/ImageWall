@@ -22,6 +22,9 @@ public class ImageWallApplication extends Application {
 		LocationLibrary.initialiseLibrary(getBaseContext(), "com.svenkapudija.imagewall");
 	}
 
+	/**
+	 * @return	Global {@link BitmapLruCache} cache.
+	 */
 	public BitmapLruCache getBitmapCache() {
 		return cache;
 	}
@@ -30,6 +33,9 @@ public class ImageWallApplication extends Application {
 		return (ImageWallApplication) context.getApplicationContext();
 	}
 	
+	/**
+	 * @return	Global {@link DatabaseHelper} helper.
+	 */
 	public DatabaseHelper getHelper() {
 		if (databaseHelper == null) {
 			databaseHelper = OpenHelperManager.getHelper(this, DatabaseHelper.class);

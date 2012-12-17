@@ -43,7 +43,14 @@ import com.svenkapudija.imagewall.models.Tag;
 
 public class MainActivity extends ImageWallActivity {
 	
+	/**
+	 * Request code when returning from Camera or Gallery app.
+	 */
 	private static final int CHOOSER_IMAGE_REQUEST_CODE = 1000;
+	/**
+	 * Request code when some image was uploaded - need to refresh
+	 * the List (to show that new image).
+	 */
 	private static final int NEW_IMAGE_REQUEST_CODE = 1001;
 	
 	private ImageChooser chooser;
@@ -115,6 +122,10 @@ public class MainActivity extends ImageWallActivity {
 		}
 	}
 	
+	
+	/**
+	 * Retrieve {@link Image} items from database.
+	 */
 	private void initListItemsFromDb() {
 		List<Image> images = new ArrayList<Image>();
 		try {
@@ -126,6 +137,9 @@ public class MainActivity extends ImageWallActivity {
 		listItems = images;
 	}
 
+	/**
+	 * Init the {@link ListView} adapter, labels and {@link OnClickListener} listeners.
+	 */
 	private void initListView() {
 		listView.setAdapter(adapter);
 		
@@ -154,11 +168,16 @@ public class MainActivity extends ImageWallActivity {
 		chooser.saveImageTo(StorageOption.SD_CARD_APP_ROOT, "imageToUpload", "myImage");
 	}
 	
-	private void performSearch(String searchText) {
-		header.setText("#" + searchText);
+	/**
+	 * Search all the images with provided tag.
+	 * 
+	 * @param tagValue
+	 */
+	private void performSearch(String tagValue) {
+		header.setText("#" + tagValue);
 		
 		final ProgressDialog dialog = ProgressDialog.show(this, null, getString(R.string.searching), true, false);
-		fetchImagesFromNetworkByTag(searchText, new FetchImagesListener() {
+		fetchImagesFromNetworkByTag(tagValue, new FetchImagesListener() {
 			
 			@Override
 			public void onSuccess() {
@@ -172,6 +191,13 @@ public class MainActivity extends ImageWallActivity {
 		});
 	}
 
+	/**
+	 * Retrieve images from REST API with provided tagValue.
+	 * Update the database (if needed) and refresh the list.
+	 * 
+	 * @param tagValue
+	 * @param listeners
+	 */
 	private void fetchImagesFromNetworkByTag(final String tagValue, final FetchImagesListener ... listeners) {
 		getApi().getImages(new Tag(tagValue), new ImagesListener() {
 			
@@ -243,6 +269,12 @@ public class MainActivity extends ImageWallActivity {
 		});
 	}
 	
+	/**
+	 * Retrieve all the images from REST API.
+	 * Update the database (if needed) and refresh the list.
+	 * 
+	 * @param listeners
+	 */
 	private void fetchImagesFromNetwork(final FetchImagesListener ... listeners) {
 		getApi().getImages(new ImagesListener() {
 			
@@ -304,10 +336,10 @@ public class MainActivity extends ImageWallActivity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    if (resultCode != Activity.RESULT_OK) {
+	    if (resultCode != Activity.RESULT_OK) { // No action for now...
 	    	return;
 	    }
-	    	
+	    
 	    if(requestCode == CHOOSER_IMAGE_REQUEST_CODE) {
 	    	chooser.onActivityResult(data, new ImageChooserListener() {
 

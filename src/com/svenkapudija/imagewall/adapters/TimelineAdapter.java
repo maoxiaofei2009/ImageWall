@@ -59,6 +59,7 @@ public class TimelineAdapter extends ArrayAdapter<Image> {
 		// refresh it's imageView only if it WASN'T recycled (because of ListView architecture)
 		viewHolder.position = position;
 		
+		// Load from memory, disk or network
 		cache.loadBitmap(position, viewHolder, image.getFileName());
 		
 		String imageDescription = image.getDescription();

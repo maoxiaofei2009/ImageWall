@@ -22,10 +22,11 @@ import com.svenkapudija.imagewall.models.Image;
 import com.svenkapudija.imagewall.models.Location;
 import com.svenkapudija.imagewall.models.Tag;
 
+/**
+ * Wrapper for ImageWall REST API.
+ */
 public class ImageWallApi {
 
-	private static final String TAG = ImageWallApi.class.getName();
-	
 	private static final String API_BASE_URL = "http://team36.host25.com/api"; 
 	
 	private AsyncHttpClient httpClient;
@@ -36,6 +37,12 @@ public class ImageWallApi {
 		httpClient.setTimeout(30000);
 	}
 
+	/**
+	 * Get all images.
+	 * 
+	 * @param listener
+	 * @param lastImageTimestamp
+	 */
 	public void getImages(final ImagesListener listener, Date ... lastImageTimestamp) {
 		httpClient.get(API_BASE_URL + "/images", new AsyncHttpResponseHandler() {
 			@Override
@@ -51,6 +58,13 @@ public class ImageWallApi {
 		});
 	}
 	
+	/**
+	 * Get all images with specific tag.
+	 * 
+	 * @param tag
+	 * @param listener
+	 * @param lastImageTimestamp
+	 */
 	public void getImages(Tag tag, final ImagesListener listener, Date ... lastImageTimestamp) {
 		RequestParams params = new RequestParams();
 		params.put("tag", tag.getValue());
@@ -69,6 +83,12 @@ public class ImageWallApi {
 		});
 	}
 	
+	/**
+	 * Parse JSON to {@link Image} objects.
+	 * 
+	 * @param result
+	 * @return
+	 */
 	private Collection<Image> jsonToImagesCollection(String result) {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.setDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -83,6 +103,12 @@ public class ImageWallApi {
 		return images;
 	}
 	
+	/**
+	 * Get all tags near some location.
+	 * 
+	 * @param geoPoint
+	 * @param listener
+	 */
 	public void getTags(Location geoPoint, final TagsListener listener) {
 		RequestParams params = new RequestParams();
 		params.put("lat", Double.toString(geoPoint.getLat()));
@@ -109,6 +135,12 @@ public class ImageWallApi {
 		});
 	}
 	
+	/**
+	 * Get specific image by it's ID.
+	 * 
+	 * @param id
+	 * @param listener
+	 */
 	public void getImage(int id, final ImageListener listener) {
 		httpClient.get(API_BASE_URL + "/images/id/" + id, new AsyncHttpResponseHandler() {
 			@Override
@@ -123,6 +155,13 @@ public class ImageWallApi {
 		});
 	}
 	
+	/**
+	 * Get actual bitmap (file).
+	 * 
+	 * @param type
+	 * @param imageName
+	 * @param listener
+	 */
 	public void getBitmap(ImageSizeType type, String imageName, final BitmapListener listener) {
 		String[] allowedContentTypes = new String[] { "image/jpeg" };
 		httpClient.get(API_BASE_URL + "/files/images/" + type.getUrl() + "/" + imageName, new BinaryHttpResponseHandler(allowedContentTypes) {
@@ -140,6 +179,15 @@ public class ImageWallApi {
 		});
 	}
 	
+	/**
+	 * Upload image with optional description, tag and location.
+	 * 
+	 * @param image
+	 * @param description
+	 * @param tagValue
+	 * @param location
+	 * @param listener
+	 */
 	public void uploadImage(Bitmap image, String description, String tagValue, Location location, final UploadImageListener listener) {
 		RequestParams params = new RequestParams();
 		if (description != null) {
