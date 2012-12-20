@@ -1,17 +1,16 @@
 ImageWall
 =========
 
-Android application made for 'Best Code Challenge 3.0' (student competition in programming) according to competitions
+Project application made for 'Best Code Challenge 3.0' (student competition in programming) according to competitions
 specifications in ~3 days. The goal was to made the 'ImageWall' - think of it like the
 TwitterWall but with images.
 
 Every image can have description, tag an location and can be searched on that
 specific tag.
 
-Mobile application is part of larger project which consists of REST API, web
-and mobile app.
+Mobile application and web are connected to a REST API. Web and REST API are powered by CodeIgniter framework.
 
-Features
+Android App Features
 --------
  * 2 levels of cache - [LRU Memory Cache](http://developer.android.com/reference/android/util/LruCache.html) and Disk Cached (SD Card)
  * connects to ImageWall REST API via [Asynchronous Http Client](http://loopj.com/android-async-http/) and parses JSON with [GSON library](http://code.google.com/p/google-gson/)
