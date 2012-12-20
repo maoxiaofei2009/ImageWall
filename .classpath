@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="libs/gson-2.2.2.jar"/>
 	<classpathentry kind="lib" path="libs/ormlite-android-4.42.jar"/>
 	<classpathentry kind="lib" path="libs/ormlite-core-4.42.jar"/>
+	<classpathentry kind="lib" path="libs/imagechooser.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

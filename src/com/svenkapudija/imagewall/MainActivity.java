@@ -33,7 +33,6 @@ import com.svenkapudija.imagechooser.AlertDialogImageChooser;
 import com.svenkapudija.imagechooser.ImageChooser;
 import com.svenkapudija.imagechooser.ImageChooserListener;
 import com.svenkapudija.imagechooser.StorageOption;
-import com.svenkapudija.imagechooser.settings.AlertDialogImageChooserSettings;
 import com.svenkapudija.imagewall.adapters.TimelineAdapter;
 import com.svenkapudija.imagewall.api.ImageWallApi.ImagesListener;
 import com.svenkapudija.imagewall.base.ImageWallActivity;
@@ -164,7 +163,7 @@ public class MainActivity extends ImageWallActivity {
 	}
 
 	private void initImageChooser() {
-		chooser = new AlertDialogImageChooser(this, CHOOSER_IMAGE_REQUEST_CODE, new AlertDialogImageChooserSettings(true));
+		chooser = new AlertDialogImageChooser(this, CHOOSER_IMAGE_REQUEST_CODE);
 		chooser.saveImageTo(StorageOption.SD_CARD_APP_ROOT, "imageToUpload", "myImage");
 	}
 	
@@ -341,18 +340,24 @@ public class MainActivity extends ImageWallActivity {
 	    }
 	    
 	    if(requestCode == CHOOSER_IMAGE_REQUEST_CODE) {
+	    	final ProgressDialog dialog = ProgressDialog.show(this, null, getString(R.string.loading_image), true, false);
+	    	
 	    	chooser.onActivityResult(data, new ImageChooserListener() {
 
 	    		@Override
-	    		public void onResult(final Bitmap image, final File ... savedImages) {
+	    		public void onResult(final Bitmap image, final File savedImage) {
 	    			image.recycle();
 	 	            
+	    			dialog.cancel();
+	    			
 	    			Intent i = new Intent(MainActivity.this, NewImageActivity.class);
 	    			startActivityForResult(i, NEW_IMAGE_REQUEST_CODE);
 	    		}
 
 	    		@Override
 	    		public void onError(String message) {
+	    			dialog.cancel();
+	    			
 	    			Toast.makeText(MainActivity.this, getString(R.string.couldnt_load_the_image_please_try_again), Toast.LENGTH_LONG).show();
 	    		}
 	    	});
