@@ -1,0 +1,247 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ImageWall | API Dokumentacija</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+<link href="css/prettify.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/prettify.js"></script>
+
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+                    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+                                   <link rel="shortcut icon" href="ico/favicon.png">
+  </head>
+
+  <body onload="prettyPrint()">
+
+  <div class="container">
+
+      <div class="masthead">
+          <h3 class="muted">API dokumentacija</h3>
+      </div>
+
+      <hr>
+
+      <div class="row-fluid marketing">
+          <div class="span12">
+              <h3>Base URL:</h3>
+              <pre>api.team36.host25.com</pre>
+<hr>
+              <h1>Images</h1>
+              <p>Dohvati sve slike tj. informacije o njima.</p>
+              <p>
+              <pre>GET: /images</pre>
+              </p>
+              <pre class="prettyprint linenums">
+[
+    {
+        "id": 20,
+        "dateCreated": "2012-12-16 18:07:22",
+        "fileName": "20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+        "fileSize": 151015,
+        "sizes": {
+            "original": "/files/images/original/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+            "web_default": "/files/images/default/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+            "thumbnails": {
+                "embedded": "/files/images/thumbnail/embedded/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+                "square": "/files/images/thumbnail/square/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+                "android": "/files/images/thumbnail/android/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg"
+            }
+        },
+        "description": "Uplodano2",
+        "tag": {
+            "id": 3,
+            "value": "rest"
+        }
+    },
+    ...
+]
+              </pre>
+<hr>
+              <p>Dohvati sve slike koje imaju tag <code>:tag</code> tj. informacije o njima.</p>
+              <p>
+              <pre>GET: /images?tag=:tag</pre>
+              </p>
+              <pre class="prettyprint linenums">
+[
+    {
+        "id": 20,
+        "dateCreated": "2012-12-16 18:07:22",
+        "fileName": "20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+        "fileSize": 151015,
+        "sizes": {
+            "original": "/files/images/original/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+            "web_default": "/files/images/default/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+            "thumbnails": {
+                "embedded": "/files/images/thumbnail/embedded/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+                "square": "/files/images/thumbnail/square/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg",
+                "android": "/files/images/thumbnail/android/20_7816ecd7a79fd2e203036e81e1c72aa259b84023.jpg"
+            }
+        },
+        "description": "Uplodano2",
+        "tag": {
+            "id": 3,
+            "value": "rest"
+        }
+    },
+    ...
+] </pre>
+              <hr>
+              <p>Uploadaj novu sliku na server. Kao response vraća informacije o uploadanoj slici.</p>
+              <p>Parametri:
+              <ul>
+              <li><code>image</code> - slika koja se želi poslati</li>
+              <li><code>description</code> - opis slike (opcionalno)</li>
+              <li><code>tag</code> - tag koji je vezan na sliku (opcionalno)</li>
+              <li><code>lat</code> - latitude lokacije (opcionalno)</li>
+              <li><code>lon</code> - longitude lokacije (opcionalno)</li>
+              </ul>
+              </p>
+              <p>
+              <pre>POST: /images</pre>
+              </p>
+              <pre class="prettyprint linenums">
+{
+    "id": 21,
+    "dateCreated": "2012-12-16 23:29:27",
+    "fileName": "21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+    "fileSize": 20711,
+    "sizes": {
+        "original": "/files/images/original/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+        "web_default": "/files/images/default/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+        "thumbnails": {
+            "embedded": "/files/images/thumbnail/embedded/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+            "square": "/files/images/thumbnail/square/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+            "android": "/files/images/thumbnail/android/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg"
+        }
+    },
+    "description": "Test",
+    "tag": {
+        "id": 1,
+        "value": "sven"
+    },
+    "location": {
+        "id": 1,
+        "lat": 46.13417,
+        "lon": -108.206542
+    }
+}
+              </pre>
+              <hr>
+              <p>Dohvati informacije o slici sa zadanim ID-em.</p>
+              <p>
+              <pre>GET: /images/id/:id</pre>
+              </p>
+              <pre class="prettyprint linenums">
+{
+    "id": 21,
+    "dateCreated": "2012-12-16 23:29:27",
+    "fileName": "21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+    "fileSize": 20711,
+    "sizes": {
+        "original": "/files/images/original/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+        "web_default": "/files/images/default/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+        "thumbnails": {
+            "embedded": "/files/images/thumbnail/embedded/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+            "square": "/files/images/thumbnail/square/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg",
+            "android": "/files/images/thumbnail/android/21_4bf388e5a18848e9b57ddc7a1cd760637d4fb174.jpg"
+        }
+    },
+    "description": "Test",
+    "tag": {
+        "id": 1,
+        "value": "sven"
+    },
+    "location": {
+        "id": 1,
+        "lat": 46.13417,
+        "lon": -108.206542
+    }
+}</pre>
+              <hr>
+              <h1>Tags</h1>
+              <p>Dohvati sve tagove u zadanom vremenskom periodu (unazad).</p>
+              <p>
+              <pre>GET: /tags?timespanInMinutes=:timespanInMinutes</pre>
+              </p>
+              <pre class="prettyprint linenums">
+[
+    {
+        "id": 1,
+        "value": "sven",
+        "occurrences": 3
+    },
+    {
+        "id": 2,
+        "value": "myTag",
+        "occurrences": 3
+    },
+    {
+        "id": 3,
+        "value": "rest",
+        "occurrences": 13
+    },
+    {
+        "id": 4,
+        "value": "vertex",
+        "occurrences": 1
+    }
+]</pre>
+              <hr>
+              <p>Dohvati sve tagove pored zadane lokacije i u zadanom radijusu, u zadanom vremenskom periodu (unazad).</p>
+              <p>
+              <pre>GET: /tags?lat=:lat&lon=:lon&radius=:radius&amp;timespanInMinutes=:timespanInMinutes</pre>
+              </p>
+              <pre class="prettyprint linenums">
+[
+    {
+        "id": 1,
+        "value": "sven",
+        "occurrences": 3
+    },
+    {
+        "id": 2,
+        "value": "myTag",
+        "occurrences": 3
+    },
+    {
+        "id": 3,
+        "value": "rest",
+        "occurrences": 13
+    }
+]</pre>
+          </div>
+      </div>
+
+      <hr>
+
+      <div class="footer">
+          <p>&copy; <a href="http://www.svenkapudija.com" target="_blank">Sven Kapuđija</a> 2012 | <a href="http://www.best.hr/code-challenge/v3.0" target="_blank">Best Code Challenge 3.0</a></p>
+      </div>
+
+  </div> <!-- /container -->
+
+  </body>
+</html>

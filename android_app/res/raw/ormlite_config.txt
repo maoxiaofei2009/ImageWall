@@ -1,0 +1,69 @@
+#
+# generated on 2012/12/16 01:30:19
+#
+# --table-start--
+dataClass=com.svenkapudija.imagewall.models.Image
+tableName=image
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=description
+# --field-end--
+# --field-start--
+fieldName=dateCreated
+# --field-end--
+# --field-start--
+fieldName=fileSize
+# --field-end--
+# --field-start--
+fieldName=fileName
+# --field-end--
+# --field-start--
+fieldName=tag
+foreign=true
+foreignAutoRefresh=true
+foreignAutoCreate=true
+# --field-end--
+# --field-start--
+fieldName=location
+foreign=true
+foreignAutoRefresh=true
+foreignAutoCreate=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.svenkapudija.imagewall.models.Location
+tableName=location
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=lat
+# --field-end--
+# --field-start--
+fieldName=lon
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.svenkapudija.imagewall.models.Tag
+tableName=tag
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=value
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################

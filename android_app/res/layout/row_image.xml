@@ -1,0 +1,33 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    tools:context=".MainActivity" >
+
+    <ImageView
+        android:id="@+id/imageView_image"
+        android:layout_width="270dp"
+        android:layout_height="90dp"
+        android:background="@drawable/loading_image"
+        android:scaleType="centerCrop"
+        android:src="@drawable/button_transparent" />
+
+    <TextView
+        android:id="@+id/textView_imageDescription"
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/imageView_image"
+        android:layout_alignParentBottom="false"
+        android:background="@color/image_description_background_opacity_50"
+        android:ellipsize="end"
+        android:fadingEdge="horizontal"
+        android:maxLines="1"
+        android:padding="5dp"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:text="Killer7 is an action-adventure video"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/text_medium" />
+
+</RelativeLayout>

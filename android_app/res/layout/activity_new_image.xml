@@ -1,0 +1,183 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".MainActivity" >
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout_header"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/gradient_light_dark_blue" >
+
+        <ImageView
+            android:id="@+id/imageView_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:src="@drawable/logo" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relativeLayout_header"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@android:color/white"
+        android:padding="16dp" >
+
+        <TextView
+            android:id="@+id/textView_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/post_new_image"
+            android:textColor="@color/text_default"
+            android:textSize="@dimen/text_large" />
+
+        <ImageView
+            android:id="@+id/imageView_dottedLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView_header"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/dotted_line" />
+
+        <ImageView
+            android:id="@+id/imageView_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageView_dottedLine"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:src="@drawable/loading_image" />
+
+        <ImageView
+            android:id="@+id/imageView_dottedLine2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageView_image"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/dotted_line"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/editText_imageDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageView_dottedLine2"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/edittext_background"
+            android:ems="10"
+            android:hint="@string/image_description_optional"
+            android:imeOptions="actionUnspecified"
+            android:inputType="textCapSentences"
+            android:paddingLeft="16dp"
+            android:textColor="@color/text_default"
+            android:textColorHint="@color/text_hint"
+            android:textSize="@dimen/text_small" >
+
+        </EditText>
+
+        <TextView
+            android:id="@+id/textView_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/editText_imageDescription"
+            android:text="@string/tag"
+            android:textColor="@color/text_default"
+            android:textSize="@dimen/text_large" />
+
+        <ImageView
+            android:id="@+id/imageView_dottedLine3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView_tag"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/dotted_line" />
+
+        <Button
+            android:id="@+id/button_nearestTags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/imageView_dottedLine3"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/button_tag"
+            android:paddingBottom="3dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingTop="3dp"
+            android:src="@drawable/button_blue"
+            android:text="@string/nearest_tags"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_small"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/editText_tagValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageView_dottedLine3"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/edittext_background"
+            android:ems="10"
+            android:hint="@string/tag_name_optional"
+            android:inputType="text"
+            android:paddingLeft="16dp"
+            android:textColor="@color/text_default"
+            android:textColorHint="@color/text_hint"
+            android:textSize="@dimen/text_small" >
+
+            <requestFocus />
+        </EditText>
+
+        <CheckBox
+            android:id="@+id/checkBox_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/editText_tagValue"
+            android:button="@drawable/checkbox"
+            android:checked="true"
+            android:text="@string/attach_location_to_an_image"
+            android:textSize="@dimen/text_small" />
+
+        <ImageView
+            android:id="@+id/imageView_dottedLine4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/checkBox_location"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/dotted_line" />
+
+        <Button
+            android:id="@+id/button_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageView_dottedLine4"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/button_blue"
+            android:paddingBottom="6dp"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:paddingTop="6dp"
+            android:shadowColor="@color/text_shadow"
+            android:shadowDx="-1"
+            android:shadowDy="-1"
+            android:shadowRadius="2"
+            android:src="@drawable/button_blue"
+            android:text="@string/send"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_medium" />
+    </RelativeLayout>
+
+</RelativeLayout>

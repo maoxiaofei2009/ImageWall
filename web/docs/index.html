@@ -1,0 +1,259 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ImageWall | Dokumentacija</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+<link href="css/prettify.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/prettify.js"></script>
+
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+                    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+                                   <link rel="shortcut icon" href="ico/favicon.png">
+      <style type="text/css">
+          body {
+              padding-top: 20px;
+              padding-bottom: 40px;
+          }
+
+              /* Custom container */
+          .container-narrow {
+              margin: 0 auto;
+              max-width: 700px;
+          }
+          .container-narrow > hr {
+              margin: 30px 0;
+          }
+
+              /* Main marketing message and sign up button */
+          .jumbotron {
+              margin: 60px 0;
+              text-align: center;
+          }
+          .jumbotron h1 {
+              font-size: 72px;
+              line-height: 1;
+          }
+          .jumbotron .btn {
+              font-size: 21px;
+              padding: 14px 24px;
+          }
+
+              /* Supporting marketing content */
+          .marketing {
+              margin: 60px 0;
+          }
+          .marketing p + h4 {
+              margin-top: 28px;
+          }
+      </style>
+  </head>
+
+  <body onload="prettyPrint()">
+
+  <div class="container-narrow">
+
+      <div class="masthead">
+          <ul class="nav nav-pills pull-right">
+              <li class="active"><a href="embedded.html">iframe preview</a></li>
+          </ul>
+          <a href="http://team36.host25.com" target="_blank"><h3 class="muted">ImageWall</h3></a>
+      </div>
+
+      <hr>
+
+      <div class="jumbotron">
+          <h1>Dokumentacija</h1>
+          <p class="lead">PHP, MySQL, Java, Android, Google Maps, JavaScript, jQuery, CodeIgniter, Google GSON, AJAX, REST API, MVC pattern, ORMLite,
+              Little Fluffy Location, Android Asynchronous Http Client, LRU Cache, PullToRefresh...</p>
+      </div>
+
+      <hr>
+
+      <h1>Arhitektura projekta</h1>
+      <div class="row-fluid marketing">
+          <div class="span12" style="text-align: center">
+                <img src="img/imagewall_architecture.jpg" alt="" title="" />
+          </div>
+      </div>
+      <div class="row-fluid marketing">
+          <div class="span12">
+              <h1>Serverski dio <small>REST API</small></h1>
+              <pre class="prettyprint">
+application/models
+application/views
+application/controllers</pre>
+              <p>Na <b>REST API</b> se veže mobilna aplikacija te sama web-stranica (prikaz na webu). Sustav je na baziran na
+              <a href="http://ellislab.com/codeigniter" target="_blank">CodeIgniter</a> frameworku
+              uz pomoć <a href="https://github.com/philsturgeon/codeigniter-restserver" target="_blank">CodeIgniter Rest Server</a> librarya.</p>
+              <h4>Baza podataka</h4>
+              <p>Za bazu podataka se koristi MySQL sa 3 tablice:
+                  <ul>
+                    <li>images</li>
+                    <li>tags</li>
+                    <li>locations</li>
+                  </ul>
+              </p>
+              <h4>Resize slika</h4>
+              <p>
+                  Kako bi se skinuo teret resizeanja slika na samim smartphone uređajima (što zna biti mučno zbog ograničene RAM memorije koja je dozvoljena
+                  samoj aplikaciji) resize se radi na samom serveru prilikom uploada slike u 5 veličina uz pomoć <a href="http://www.verot.net/php_class_upload.htm" target="_blank">class.upload.php</a> librarya:
+                  <ul>
+                    <li>original</li>
+                    <li>default prikaz na webu (kada se gleda samo jedna slika)</li>
+                    <li>thumbnail slike (kada se gleda popis slika)</li>
+                    <li>thumbnail slike (kada se gleda popis slika unutar iframe kontejnera)</li>
+                    <li>thumbnail slike za prikaz na Android uređajima</li>
+                  </ul>
+              </p>
+              <h4>Duplikati <small>deja-vu problem</small></h4>
+              <p>
+                  Nije moguće postaviti 2 identične slike na servis, u bilo kojem vremensku periodu - svaka slika se hashira uz pomoć <code>SHA-1</code> hasha te se hash sprema u bazu.
+                  <br /><i>// TODO: 'Olabaviti' pristup i ako je vremenski razmak dovoljno velik, ipak omogućiti da se stave dvije identične slike. Uvjet: autentifikacija putem
+                  korisničkih računa (koji ovdje nisu napravljeni).</i>
+              </p>
+          </div>
+      </div>
+
+      <div class="row-fluid marketing">
+          <div class="span12">
+              <h1>Serverski dio <small>prikaz na webu</small></h1>
+              <pre class="prettyprint">
+application/models
+application/views
+application/controllers</pre>
+              <p>Koristi se <a href="http://ellislab.com/codeigniter" target="_blank">CodeIgniter</a> framework uz jasan pregled MVC obrasca. Za spajanje na REST API
+              je napravljen maleni wrapper koji koristi <a href="https://github.com/shuber/curl" target="_blank">cURL wrapper</a> library te se sve svodi na jednostavan
+              <code>GET</code> request uz dekodiranje JSON-a sa <code>json_decode</code>.</p>
+              <h4>Embedded images</h4>
+              <p>
+                Kako bi se slike s određenom oznakom (tagom) prikazivale u <code>embedded</code> načinu rada tj. rada u <code>iframe</code> kontejneru - potrebno je samo dodati parametar
+                  <code>type=iframe</code> na url <code>/images?tag=myTag</code> koji služi za dohvat 'klasične' web stranice. Dakle samo taj parametar određuje prikaz cijele web-stranice.
+              </p>
+              <h4>Live-refresh</h4>
+              <p>
+                  Osvježavanje se radi svakih 10 sekundi uz pomoć <b>AJAX</b>-a, te ako su stigle neke nove slike s REST API-a - prikazuju se na stranici tj. ubacuju u DOM pomoću <a href="http://jquery.com/" target="_blank">jQuery</a>
+                  librarya uz određen Javascript interval.
+              </p>
+              <h4>Google Maps</h4>
+              <p>
+                  Za prikaz lokacije gdje je fotografija snimljena se koristi <a href="https://developers.google.com/maps/documentation/javascript/" target="_blank">Google Maps JavaScript API v3</a>.
+              </p>
+          </div>
+      </div>
+
+      <div class="row-fluid marketing">
+          <div class="span12">
+              <h1>Mobilna aplikacija <small>Android</small></h1>
+              <pre class="prettyprint">src/com/svenkapudija/imagewall/*
+res/*</pre>
+              <p>Aplikacija se spaja na REST API za dohvaćanje svježih podataka te koristi 2 razine cachea za pohranu <code>Bitmap</code> slika - u memoriji i na disku (točnije SD kartici).
+              Cache u memoriji je realiziran uz pomoć <a href="http://developer.android.com/reference/android/util/LruCache.html" target="_blank">LRU Cachea</a>.</p>
+              <p>Za realizaciju client-side librarya za pristupanje REST API-ju je korišten <a href="http://loopj.com/android-async-http/" target="_blank">Android Asynchronous Http Client</a>
+              kako bi se svo dohvaćanje prebacilo na druge dretve tj. kako se glavna, UI dretva, ne bi blokirala.</p>
+              <p>Mapiranje između Java klasa i samog JSON-a (dohvaćenog s API-ja) je obavljeno uz pomoć refleksije odnosno <a href="http://code.google.com/p/google-gson/" target="_blank">Google GSON</a>
+              librarya koji to obavlja bez ikakve potrebe anotacije i sličnog.</p>
+              <p>Spremanje podataka u SQLite bazu (informacije o slikama, tagovima, lokacijama) se obavlja uz pomoć <a href="http://ormlite.com/" target="_blank">ORMLite</a> librarya.</p>
+              <p>Za dohvaćanje lokacije o korisniku koristi se pasivno dohvaćanje lokacije* (a zatim aktivno ukoliko pasivno nije bilo dovoljno precizno) uz pomoć
+                  <a href="http://code.google.com/p/little-fluffy-location-library/" target="_blank">little-fluffy-location-library</a> librarya.<br />
+                  <i>*pasivno dohvaćanje lokacije znači da ukoliko je neka druga aplikacija (npr. Google Maps) dohvatila već lokaciju putem GPS-a, nema potrebe ju ponovno dohvaćati i trošiti bateriju
+                  već samo preuzme zadnju dohvaćenu lokaciju - ušteda baterije i veća brzina dohvaćanja lokacije</i>
+              </p>
+              <p>
+                  Za dohvat slika s kamere ili galerije kako bi se dalje mogla slika proslijediti na upload putem API-ja se koristi vlastiti library - <a href="https://github.com/svenkapudija/Android-ImageChooser" target="_blank">ImageChooser</a>.
+              </p>
+              <p>
+                  Spremanje slika na SD karticu je olakšano vlastitim wrapperom - <a href="https://github.com/svenkapudija/AndroidFileUtils" target="_blank">AndroidFileUtils</a>.
+              </p>
+              <h4>PullToRefresh</h4>
+              <p>
+                  Kako bi se napravio <i>refresh</i> liste korišten je 'Pull To Refresh' UI obrazac uz pomoć <a href="https://github.com/chrisbanes/Android-PullToRefresh/" target="_blank">Android-PullToRefresh</a> librarya.
+              </p>
+              <h4>Search</h4>
+              <p>
+                  Pretraživanje slika (prema tagu) je implementirano <code>Search</code> tipkom na samom uređaju te pomoću buttona na ActionBaru čime se otvara Androidova defaultna implementacija
+                  SearchBara.
+              <ul class="thumbnails">
+                  <li class="span4">
+                      <a href="img/ss4.png" target="_blank"><img src="img/ss4_thumb.png" alt=""></a>
+                  </li>
+              </ul>
+              </p>
+
+              <h4>Google Maps API</h4>
+              <p>
+                  Sve slike koje imaju lokaciju moguće je vidjeti na karti putem Google Maps API-a (klikom na <i>pinpoint</i> u gornjem desnom kutu ekrana kada se otvori neka slika).
+              </p>
+              <h4>Kompatibilnost</h4>
+              <p>
+                  Podržane su sve verzije Androida od verzije <a href="http://developer.android.com/about/versions/android-2.2.html" target="_blank">2.2, Froyo (API level 8)</a> nadalje.
+              </p>
+
+              <h4>Uređaji</h4>
+              <p>
+                  Aplikacija je u potpunosti istestirana na <a href="http://www.gsmarena.com/htc_desire-3077.php" target="_blank">HTC Desire</a> (<a href="http://developer.android.com/about/versions/android-2.3.3.html" target="_blank">Android 2.3.</a>).
+              </p>
+
+              <h4>Source kod i .apk</h4>
+              <p>
+                  Source kod te instalacijska datoteka <code>.apk</code> se nalazi u <code>/docs</code> direktoriju na serveru.
+                  <code>.apk</code> je potrebno samo preseliti na mobitel i pokrenuti - otvorit će se instalacija i aplikacija je instalirana.
+              </p>
+              
+              <h4>Screenshots</h4>
+              <ul class="thumbnails">
+                  <li class="span4">
+                      <a href="img/ss1.png" target="_blank"><img src="img/ss1_thumb.png" alt=""></a>
+                  </li>
+                  <li class="span4">
+                      <a href="img/ss2.png" target="_blank"><img src="img/ss2_thumb.png" alt=""></a>
+                  </li>
+                  <li class="span4">
+                      <a href="img/ss3.png" target="_blank"><img src="img/ss3_thumb.png" alt=""></a>
+                  </li>
+              </ul>
+          </div>
+      </div>
+
+      <div class="row-fluid marketing">
+          <div class="span12">
+              <h1>Ostalo</h1>
+              <ul>
+                  <li>Kao DVCS sustav je korišten <a href="http://git-scm.com/" target="_blank">Git</a> </li>
+                  <li>Elementi dizajna (web i mobile) su napravljeni (modificirani) koristeći <a href="http://designmodo.com/the-bricks-addons/" target="_blank">The Bricks Framework</a> (kupljena verzija s add-on paketom)</li>
+              </ul>
+          </div>
+      </div>
+
+      <hr>
+
+      <div class="footer">
+          <p>&copy; <a href="http://www.svenkapudija.com" target="_blank">Sven Kapuđija</a> 2012 | <a href="http://www.best.hr/code-challenge/v3.0" target="_blank">Best Code Challenge 3.0</a></p>
+      </div>
+
+  </div> <!-- /container -->
+
+  </body>
+</html>
