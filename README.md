@@ -1,3 +1,10 @@
+> Project is far from bug-free and for example Android app is missing some components like [BugSense](http://www.bugsense.com/)/[Crittercism](http://www.crittercism.com/) for bug reporting, [Flurry](http://www.flurry.com/)/[Localytics](http://www.localytics.com/) for
+> analytics which are required for production version etc. but the "core" is working.
+>
+> I tried to experiment with [MongoDB](http://www.mongodb.org/) (because of it's [geolocational native features](http://docs.mongodb.org/manual/core/geospatial-indexes/)) and Java on the server but the jury
+> decided that for the sake of simplicity only SQL databases are supported and therefore my fallback was the PHP-MySQL version because I knew
+> I could finish on-time (I have some experience in PHP/MySQL).
+
 Project made for **Best Code Challenge 3.0** (student competition in programming at [Faculty of Electrical Engineering and Computing @ Zagreb, Croatia](http://www.fer.unizg.hr/en)) according to competitions
 specifications in ~3-4 days (official deadline was 10 days). The goal was to made the 'ImageWall' - think of it like the
 TwitterWall but with images.
