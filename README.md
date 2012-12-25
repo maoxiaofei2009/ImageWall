@@ -1,5 +1,5 @@
 Project made for **Best Code Challenge 3.0** (student competition in programming at [Faculty of Electrical Engineering and Computing @ Zagreb, Croatia](http://www.fer.unizg.hr/en)) according to competitions
-specifications in ~3 days. The goal was to made the 'ImageWall' - think of it like the
+specifications in ~3-4 days (official deadline was 10 days). The goal was to made the 'ImageWall' - think of it like the
 TwitterWall but with images.
 
 Every image can have description, tag and location and can be searched on specific tag.
@@ -138,7 +138,7 @@ Application supports everything from Android version [2.2, Froyo (API level 8)](
 
 ####Devices
 
-Application is tested on the [HTC Desire](http://www.gsmarena.com/htc_desire-3077.php) [Android 2.3)](http://developer.android.com/about/versions/android-2.3.3.html).
+Application is tested on the [HTC Desire](http://www.gsmarena.com/htc_desire-3077.php) [Android 2.3](http://developer.android.com/about/versions/android-2.3.3.html).
 
 ####Screenshots
 
