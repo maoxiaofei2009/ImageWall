@@ -11,8 +11,8 @@ TwitterWall but with images.
 
 Every image can have description, tag and location and can be searched on specific tag.
 
-> **UPDATE:** I won **2nd place**. The reasons why I didn't won the first place (according to jury) are the bugs on the server side (division by zero)
-> and sometimes the refreshed image (via AJAX) was corrupted.
+> **UPDATE:** I won **2nd place**. The reasons why I didn't won the first place (according to jury) are the bugs on the server side (division by zero),
+> sometimes the refreshed image (via AJAX) was corrupted and (probably code?) documentation was not sufficient.
 >
 > Notice: I won the **1st place** on **Best Code Challenge v2.0**.
 
