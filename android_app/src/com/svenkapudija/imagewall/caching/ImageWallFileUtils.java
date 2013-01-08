@@ -5,8 +5,6 @@ import java.io.IOException;
 import android.content.Context;
 import android.graphics.Bitmap;
 
-import com.svenkapudija.android.fileutils.AndroidFileUtils;
-
 public class ImageWallFileUtils extends AndroidFileUtils {
 
 	private static final String IMAGE_TO_UPLOAD_DIRECTORY = "imageToUpload";
