@@ -1,3 +1,5 @@
+![ImageWall Android Cover](http://i.imgur.com/6ueAQQm.png)
+
 > Project is far from bug-free and for example Android app is missing some components like [BugSense](http://www.bugsense.com/)/[Crittercism](http://www.crittercism.com/) for bug reporting, [Flurry](http://www.flurry.com/)/[Localytics](http://www.localytics.com/) for
 > analytics which are required for production version etc. but the "core" is working.
 >
